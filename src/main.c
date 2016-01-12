@@ -6,6 +6,9 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+/*Cube of Time headers*/
+#include "l_userio.h"
+
 int main(int argc, char* argv[])
 {
     lua_State* L = luaL_newstate();
@@ -18,9 +21,16 @@ int main(int argc, char* argv[])
     lua_setfield(L, 1, "path");
     lua_settop(L, 0);
 
+    luaopen_userio(L);
+    
     int status = 0;
     if(argc < 2)
+    {    
+        //userio_override_lib(L);
+        userio_init();
         status = luaL_dofile(L, "./src/start.lua");
+        userio_destroy();
+    }
     else
         status = luaL_dofile(L, argv[1]);
 

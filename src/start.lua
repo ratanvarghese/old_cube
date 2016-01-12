@@ -1,1 +1,1 @@
-print("Hello World!")
+userio.get_char()
