@@ -8,6 +8,7 @@
 
 /*Cube of Time headers*/
 #include "l_userio.h"
+#include "l_rng.h"
 
 int main(int argc, char* argv[])
 {
@@ -22,7 +23,8 @@ int main(int argc, char* argv[])
     lua_settop(L, 0);
 
     luaopen_userio(L);
-    
+    luaopen_rng(L);
+
     int status = 0;
     if(argc < 2)
     {    
