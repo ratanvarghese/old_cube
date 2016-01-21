@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     int status = 0;
     if(argc < 2)
     {    
-        //userio_override_lib(L);
+        userio_override_lib(L);
         userio_init();
         status = luaL_dofile(L, "./src/start.lua");
         userio_destroy();

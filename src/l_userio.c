@@ -1,22 +1,22 @@
-/*Ncurses Library*/
+//Ncurses Library
 #include <ncurses.h>
 
-/*Lua Library*/
+//Lua Library
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
 
-/*Cube of Time Headers*/
+//Cube of Time Headers
 #include "base.h"
 #include "l_userio.h"
 
-/*Static globals*/
+//Static globals
 static WINDOW *msgwin, *mapwin, *statwin;
 int ready = 0;
 #define USERIO_MAX_X 80
 #define USERIO_MAX_Y 20
 
-/*Global C functions*/
+//Global C functions
 int userio_init()
 {
     if(ready)
@@ -57,13 +57,15 @@ int userio_destroy()
 
 void userio_override_lib(lua_State* L)
 {
+    //Most of the codebase should NOT deal with these raw IO functions!
+    //Be sure to change userio.lua if changing the UI
     lua_getglobal(L, "require");
     lua_pushfstring(L, "userio");
     lua_call(L, 1, 0);
     lua_settop(L, 0);
 }
 
-/*Lua functions*/
+//Lua functions
 void unready_error_check(lua_State* L, char* msg)
 {
     if(!ready)
@@ -140,9 +142,9 @@ static int l_get_string(lua_State* L)
 {
     unready_error_check(L, "get string from");
     char input_buf[USERIO_MAX_X];
-    size_t n_prompt = 0;
+    size_t n_prompt = 0, pre_input_gap = 0;
     const size_t prompt_limit = 3*(USERIO_MAX_X/4);
-    const char* prompt = lua_tolstring(L, -1, &n_prompt); /*Optional*/
+    const char* prompt = lua_tolstring(L, -1, &n_prompt); //Optional
 
     if(n_prompt > prompt_limit)
     {
@@ -150,26 +152,28 @@ static int l_get_string(lua_State* L)
         lua_error(L);
     }
 
+    wmove(msgwin, 0, 0);
+    wclrtoeol(msgwin);
     if(prompt && n_prompt)
     {
-        wmove(msgwin, 0, 0);
-        wclrtoeol(msgwin);
         mvwprintw(msgwin, 0, 0, prompt);
         wrefresh(msgwin);
+        pre_input_gap = n_prompt + 1;
     }
 
+    wmove(msgwin, 0, 0);
     echo();
     curs_set(1);
-    //wmove(msgwin, 0, n_prompt+1);
     mvwgetnstr(
         msgwin,
         0,
-        n_prompt+1,
+        pre_input_gap,
         input_buf,
         USERIO_MAX_X - n_prompt - 2
     );
     curs_set(0);
     noecho();
+    wrefresh(msgwin);
 
     lua_pushfstring(L, "%s", input_buf); 
     return 1;
@@ -184,7 +188,7 @@ static const struct luaL_Reg userio_lib [] = {
     {"display_refresh", l_display_refresh},
     {"get_max_x", l_get_max_x},
     {"get_max_y", l_get_max_y},
-    {NULL, NULL} /*Sentinel*/
+    {NULL, NULL} //Sentinel
 };
 
 int luaopen_userio(lua_State* L)
