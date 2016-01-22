@@ -22,17 +22,17 @@ function userio.display(entities, logical_center)
         z = logical_center.z
     }
     local shift = logical_center - display_center
-    local ncurses_adjust = {x = 0, y = low_level.get_max_y(), z = 0}
-    local vertical_flip = {x = 1, y = -1, z = 1}
+    local ncurses_adjust = pt.at{x = 0, y = low_level.get_max_y(), z = 0}
+    local vertical_flip = pt.at{x = 1, y = -1, z = 1}
     
-    for display_p in pt.all_positions{min=display_min, max=display_max} do
+    for p in pt.all_positions{min=display_min, max=display_max} do
         local logical_p = (p * vertical_flip) + ncurses_adjust + shift
         local logical_k = tostring(logical_p)
         local targ = entities[logical_k]
         if targ and targ.symbol then
-            low_level.display_char(targ.symbol, logical_p.x, logical_p.y)
+            low_level.display_char(targ.symbol, p.x, p.y)
         elseif logical_p.z == 0 then --" " shouldn't overwrite symbols
-            low_level.dislogical_p.ay_char(" ", logical_p.x, logical_p.y)
+            low_level.display_char(" ", p.x, p.y)
         end
     end
     low_level.display_refresh()
