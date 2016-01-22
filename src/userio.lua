@@ -22,11 +22,9 @@ function userio.display(entities, logical_center)
         z = logical_center.z
     }
     local shift = logical_center - display_center
-    local ncurses_adjust = pt.at{x = 0, y = low_level.get_max_y(), z = 0}
-    local vertical_flip = pt.at{x = 1, y = -1, z = 1}
     
     for p in pt.all_positions{min=display_min, max=display_max} do
-        local logical_p = (p * vertical_flip) + ncurses_adjust + shift
+        local logical_p = p + shift
         local logical_k = tostring(logical_p)
         local targ = entities[logical_k]
         if targ and targ.symbol then
