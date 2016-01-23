@@ -156,4 +156,23 @@ for p in pt.all_positions() do
     end
 end
 
+
+for k in pairs{x=true, y=true, z=true} do
+    expected_7 = {}
+    for kk in pairs{x=true, y=true, z=true} do
+        if k == kk then
+            expected_7[kk] = 1
+        else
+            expected_7[kk] = 0
+        end
+    end
+    result_7 = pt.at{[k] = 1}
+    results["pt.at default value 0 for " .. k] = true
+    for kk in pairs{x=true, y=true, z=true} do
+        if result_7[kk] ~= expected_7[kk] then
+            results["pt.at default value 0 for " .. k] = false
+        end
+    end
+end
+
 print_results(results, "pt")
