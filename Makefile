@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 CC=gcc
 CFLAGS=-c -Wall -pedantic-errors -Werror -std=c11
 LIBS=-llua -lncurses
@@ -12,9 +13,7 @@ all: $(OBJ)
 	$(CC) $(OBJ) $(LIBS) -o main
 
 check:
-	cp $(TESTDIR)$(TESTFILE) .
-	sh $(TESTFILE)
-	rm $(TESTFILE)
+	sh $(TESTDIR)$(TESTFILE)
 
 clean:
 	rm $(OBJ) main
