@@ -7,7 +7,6 @@
 #include <lualib.h>
 
 //Cube of Time Headers
-#include "base.h"
 #include "l_userio.h"
 
 //Static globals
@@ -15,6 +14,7 @@ static WINDOW *msgwin, *mapwin, *statwin;
 int ready = 0;
 #define USERIO_MAX_X 80
 #define USERIO_MAX_Y 20
+const char* lbname = "userio";
 
 //Global C functions
 int userio_init()
@@ -60,7 +60,7 @@ void userio_override_lib(lua_State* L)
     //Most of the codebase should NOT deal with these raw IO functions!
     //Be sure to change userio.lua if changing the UI
     lua_getglobal(L, "require");
-    lua_pushfstring(L, "userio");
+    lua_pushfstring(L, lbname);
     lua_call(L, 1, 0);
     lua_settop(L, 0);
 }
@@ -193,6 +193,7 @@ static const struct luaL_Reg userio_lib [] = {
 
 int luaopen_userio(lua_State* L)
 {
-    base_openlib(L, userio_lib, "userio");
+    luaL_newlib(L, userio_lib);
+    lua_setglobal(L, lbname);
     return 1;
 }
