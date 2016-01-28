@@ -1,5 +1,4 @@
 require("pt")
-
 rng.init(rng.metaseed)
 
 stage = {}

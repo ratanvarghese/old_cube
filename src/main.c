@@ -1,41 +1,110 @@
-/*C Standard Library*/
+//C Standard Library
 #include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
 
-/*Lua Library*/
+//Lua Library
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
 
-/*Cube of Time headers*/
+//UNIX headers
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
+//Cube of Time headers
 #include "l_userio.h"
 #include "l_rng.h"
 
-int main(int argc, char* argv[])
-{
-    lua_State* L = luaL_newstate();
-    luaL_openlibs(L);
+extern char* getenv(char* s);
 
-    const char* lua_path = "./src/?.lua;./test/?.lua";
+typedef enum
+{
+    MAINARG_TESTFILE,
+    MAINARG_MAX
+}
+t_mainarg;
+
+bool strcmp_or(char* to_judge, char* alt1, char* alt2)
+{
+    return !strcmp(to_judge, alt1) || !strcmp(to_judge, alt2);
+}
+
+//argsort must have size MAINARG MAX, argv must have size argc
+void interpret_args(int argc, char* argv[], char* argsort[])
+{
+    //Skip exec name, increment up to second-to-last arg
+    for(int i = 1; i < (argc-1); i++) 
+    {
+        if(strcmp_or(argv[i], "--test", "-t"))
+            argsort[MAINARG_TESTFILE] = argv[i+1];
+    }
+}
+
+void setup_package_path(lua_State* L, char* argsort[])
+{
+    const char* src_dir = "./src/?.lua";
+    const char* test_dir = "./test/?.lua";
+    char* home_dir = getenv("HOME");
+    if(!home_dir && getpwuid(getuid()))
+        home_dir = getpwuid(getuid())->pw_dir;
+
     lua_settop(L, 0);
+    
+    luaL_Buffer b;
+    luaL_buffinit(L, &b);
+    luaL_addstring(&b, src_dir);
+    if(argsort[MAINARG_TESTFILE])
+    {
+        luaL_addchar(&b, ';');
+        luaL_addstring(&b, test_dir);
+    }
+    if(home_dir)
+    {
+        luaL_addchar(&b, ';');
+        luaL_addstring(&b, home_dir);
+        luaL_addstring(&b, "/.cuberc/?.lua");
+    }
+
+    luaL_pushresult(&b);
     lua_getglobal(L, "package");
-    lua_pushstring(L, lua_path);
+    lua_insert(L, -2);
     lua_setfield(L, 1, "path");
     lua_settop(L, 0);
+}
+
+int main(int argc, char* argv[])
+{
+    //Sort arguments
+    char* argsort[MAINARG_MAX];
+    for(int i = 0; i < MAINARG_MAX; i++)
+    {
+        argsort[i] = NULL;
+    }
+    interpret_args(argc, argv, argsort);
+    
+    //Setup Lua state
+    lua_State* L = luaL_newstate();
+    luaL_openlibs(L);
+    setup_package_path(L, argsort);
 
     luaopen_userio(L);
     luaopen_rng(L);
 
+    //Choose entry point and run
     int status = 0;
-    if(argc < 2)
+    if(argsort[MAINARG_TESTFILE])
+        status = luaL_dofile(L, argsort[MAINARG_TESTFILE]);
+    else
     {    
         userio_override_lib(L);
         userio_init();
         status = luaL_dofile(L, "./src/start.lua");
         userio_destroy();
     }
-    else
-        status = luaL_dofile(L, argv[1]);
 
+    //Exit
     if(status)
         printf("%s\n", lua_tostring(L, -1));
     lua_close(L);
