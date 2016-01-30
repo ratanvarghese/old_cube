@@ -22,11 +22,12 @@ extern char* getenv(char* s);
 typedef enum
 {
     MAINARG_TESTFILE,
+    MAINARG_CONFIGFILE,
     MAINARG_MAX
 }
 t_mainarg;
 
-bool strcmp_or(char* to_judge, char* alt1, char* alt2)
+bool strcmp_or(const char* to_judge, const char* alt1, const char* alt2)
 {
     return !strcmp(to_judge, alt1) || !strcmp(to_judge, alt2);
 }
@@ -39,6 +40,8 @@ void interpret_args(int argc, char* argv[], char* argsort[])
     {
         if(strcmp_or(argv[i], "--test", "-t"))
             argsort[MAINARG_TESTFILE] = argv[i+1];
+        if(strcmp_or(argv[i], "--config", "-c"))
+            argsort[MAINARG_CONFIGFILE] = argv[i+1];
     }
 }
 
@@ -46,10 +49,6 @@ void setup_package_path(lua_State* L, char* argsort[])
 {
     const char* src_dir = "./src/?.lua";
     const char* test_dir = "./test/?.lua";
-    char* home_dir = getenv("HOME");
-    if(!home_dir && getpwuid(getuid()))
-        home_dir = getpwuid(getuid())->pw_dir;
-
     lua_settop(L, 0);
     
     luaL_Buffer b;
@@ -60,17 +59,38 @@ void setup_package_path(lua_State* L, char* argsort[])
         luaL_addchar(&b, ';');
         luaL_addstring(&b, test_dir);
     }
-    if(home_dir)
-    {
-        luaL_addchar(&b, ';');
-        luaL_addstring(&b, home_dir);
-        luaL_addstring(&b, "/.cuberc/?.lua");
-    }
 
     luaL_pushresult(&b);
     lua_getglobal(L, "package");
     lua_insert(L, -2);
     lua_setfield(L, 1, "path");
+    lua_settop(L, 0);
+}
+
+void setup_config_path(lua_State* L, char* argsort[])
+{
+    const char* config_varname = "CUBE_CONFIG";
+    lua_settop(L, 0);
+    if(argsort[MAINARG_CONFIGFILE])
+    {
+        lua_pushstring(L, argsort[MAINARG_CONFIGFILE]);
+        lua_setglobal(L, config_varname);
+    }
+    else
+    {
+        char* home_dir = getenv("HOME");
+        if(!home_dir && getpwuid(getuid()))
+            home_dir = getpwuid(getuid())->pw_dir;
+        if(home_dir)
+        {
+            const char* config_filename = ".cuberc";
+            lua_pushstring(L, home_dir);
+            lua_pushstring(L, "/");
+            lua_pushstring(L, config_filename);
+            lua_concat(L, 3);
+            lua_setglobal(L, config_varname);
+        }
+    }
     lua_settop(L, 0);
 }
 
@@ -88,6 +108,7 @@ int main(int argc, char* argv[])
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     setup_package_path(L, argsort);
+    setup_config_path(L, argsort);
 
     luaopen_userio(L);
     luaopen_rng(L);

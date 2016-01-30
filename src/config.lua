@@ -1,4 +1,5 @@
 config = {}
-config.status = true
-config.err = {}
-config.status, config.err = pcall(function() require("cuberc") end)
+config.chunk, config.err = loadfile(CUBE_CONFIG, "t", {config=config})
+if config.chunk then
+    config.chunk()
+end
