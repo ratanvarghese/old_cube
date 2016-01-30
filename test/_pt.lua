@@ -175,4 +175,9 @@ for k in pairs{x=true, y=true, z=true} do
     end
 end
 
+results["N vs. S"] = pt.north == pt.south * pt.at{y=-1}
+results["E vs. W"] = pt.east == pt.west * pt.at{x=-1}
+results["NE vs. SW"] = pt.northeast == pt.southwest * pt.at{x=-1, y=-1}
+results["NW vs. SE"] = pt.northwest == pt.southeast * pt.at{x=-1, y=-1}
+
 print_results(results, "pt")
