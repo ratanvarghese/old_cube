@@ -23,12 +23,12 @@ end
 pt.max = pt.at{x = 240 - 1, y = 60 - 1, z = pt.heights.flying}
 pt.min = pt.at{x = 0, y = 0, z = 0}
 
-local function is_pt(t)
+function pt.is_pt(t)
     return getmetatable(t) == pt.mt
 end
 
 function pt.valid_position(p)
-    if not is_pt(p) then
+    if not pt.is_pt(p) then
         return false
     end
 
@@ -43,8 +43,8 @@ function pt.valid_position(p)
 end    
 
 local function vector_add(a, b)
-    assert(is_pt(a), "non-pt first arg to vector_add")
-    assert(is_pt(b), "non-pt second arg to vector_add")
+    assert(pt.is_pt(a), "non-pt first arg to vector_add")
+    assert(pt.is_pt(b), "non-pt second arg to vector_add")
     local p = pt.at{}
     p.x = a.x + b.x
     p.y = a.y + b.y
@@ -54,8 +54,8 @@ end
 pt.mt.__add = vector_add
 
 local function vector_sub(a, b)
-    assert(is_pt(a), "non-pt first arg to vector_sub")
-    assert(is_pt(b), "non-pt second arg to vector_sub")
+    assert(pt.is_pt(a), "non-pt first arg to vector_sub")
+    assert(pt.is_pt(b), "non-pt second arg to vector_sub")
     local p = pt.at{}
     p.x = a.x - b.x
     p.y = a.y - b.y
@@ -65,8 +65,8 @@ end
 pt.mt.__sub = vector_sub
 
 local function vector_mul_everydimension(a, b)
-    assert(is_pt(a), "non-pt first arg to vector_mul_everydimension")
-    assert(is_pt(b), "non-pt second arg to vector_mul_everydimension")
+    assert(pt.is_pt(a), "non-pt first arg to vector_mul_everydimension")
+    assert(pt.is_pt(b), "non-pt second arg to vector_mul_everydimension")
     local p = pt.at{}
     p.x = a.x * b.x
     p.y = a.y * b.y
@@ -76,8 +76,8 @@ end
 pt.mt.__mul = vector_mul_everydimension
 
 local function vector_div_everydimension(a, b)
-    assert(is_pt(a), "non-pt first arg to vector_div_everydimension")
-    assert(is_pt(b), "non-pt second arg to vector_div_everydimension")
+    assert(pt.is_pt(a), "non-pt first arg to vector_div_everydimension")
+    assert(pt.is_pt(b), "non-pt second arg to vector_div_everydimension")
     local p = pt.at{}
     p.x = a.x / b.x
     p.y = a.y / b.y
@@ -87,8 +87,8 @@ end
 pt.mt.__div = vector_div_everydimension
 
 local function vector_eq(a, b)
-    assert(is_pt(a), "non-pt first arg to vector_eq")
-    assert(is_pt(b), "non-pt second arg to vector_eq")
+    assert(pt.is_pt(a), "non-pt first arg to vector_eq")
+    assert(pt.is_pt(b), "non-pt second arg to vector_eq")
     if a.x == b.x and a.y == b.y and a.z == b.z then
         return true
     else
@@ -98,7 +98,7 @@ end
 pt.mt.__eq = vector_eq
 
 local function vector_to_string(p)
-    assert(is_pt(p), "non_pt arg to vector_to_string")
+    assert(pt.is_pt(p), "non_pt arg to vector_to_string")
     local format = "{[\"x\"]=%d, [\"y\"]=%d, [\"z\"]=%d}"
     return string.format(format, p.x, p.y, p.z)
 end

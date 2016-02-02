@@ -1,4 +1,5 @@
 require("pt")
+
 rng.init(rng.metaseed)
 
 stage = {}
@@ -24,21 +25,19 @@ function dude.move_to(p)
 end
 dude.move_to(center)
 
-controls = {
-    ["k"] = pt.at{y=-1},
-    ["j"] = pt.at{y=1},
-    ["h"] = pt.at{x=-1},
-    ["l"] = pt.at{x=1}
-}
-
-s = " "
 userio.display(stage, center)
-while s ~= "q" do
-    s = userio.get_string()
-    if controls[s] then
-        nu_p = controls[s] + dude.position
-        if dude.move_to(nu_p) then
+keep_going = true
+while keep_going do
+    input = userio.input(userio.controls.main, true, "> ")
+    if pt.is_pt(input) then
+        if dude.move_to(input + dude.position) then
             userio.display(stage, center)
+        else
+            userio.message("Bump!")
         end
+    elseif input == "quit" then
+        keep_going = false
+    else
+        userio.message("Invalid input")
     end
 end

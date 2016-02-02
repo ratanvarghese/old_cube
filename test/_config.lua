@@ -1,22 +1,34 @@
 require("_common")
+require("config")
+
 results = {}
-if CUBE_CONFIG then
+
+function cache_cuberc(tmp_name)
     --Don't want to overwrite existing cuberc
-    tmp_name = "./cnf_tmp"
-    cmd_1 = "mv " .. CUBE_CONFIG .. " " .. tmp_name
-    os.execute(cmd_1)
+    os.execute("mv " .. CUBE_CONFIG .. " " .. tmp_name)
+end
+
+function restore_cuberc(tmp_name)
+    os.execute("mv " .. tmp_name .. " " .. CUBE_CONFIG)
+end
+
+function write_cuberc(content)
+    local f = assert(io.open(CUBE_CONFIG, "w"))
+    f:write(content)
+    f:close()
+end
+
+if CUBE_CONFIG then
+    local tmp_name = "./cnf_tmp"
+    cache_cuberc(tmp_name)
 
     orig_msg = "I can ride my bike with no handlebars"
-    esc_msg = "\\\"".. orig_msg .. "\\\""
-    cmd_2 = "echo \"config.msg = " .. esc_msg .. "\" > " .. CUBE_CONFIG
-    os.execute(cmd_2)
+    write_cuberc("msg = \"" .. orig_msg .. "\"")
 
-    require("config")
+    config.readfile()
+    results["Successful interpret"] = orig_msg == config.userinput.msg
 
-    results["Successful interpret"] = orig_msg == config.msg
-
-    cmd_final = "mv " .. tmp_name .. " " .. CUBE_CONFIG
-    os.execute(cmd_final)
+    restore_cuberc(tmp_name)
 end
 
 print_results(results, "config")

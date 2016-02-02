@@ -75,6 +75,12 @@ void unready_error_check(lua_State* L, char* msg)
     }
 }
 
+static int l_is_ready(lua_State* L)
+{
+    lua_pushboolean(L, ready);
+    return 1;
+}
+
 static int l_display_char(lua_State* L)
 {
     unready_error_check(L, "display char to");
@@ -180,6 +186,7 @@ static int l_get_string(lua_State* L)
 }
 
 static const struct luaL_Reg userio_lib [] = {
+    {"is_ready", l_is_ready},
     {"message", l_message},
     {"get_char", l_get_char},
     {"get_string", l_get_string},

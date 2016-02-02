@@ -5,6 +5,7 @@ local function new()
     local mockery = {
         get_max_x=actual_userio.get_max_x,
         get_max_y=actual_userio.get_max_y,
+        is_ready=actual_userio.is_ready,
         msg_buf={},
         prompt_buf={},
         screen={},
