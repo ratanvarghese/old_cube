@@ -2,6 +2,71 @@ require("_common")
 require("base")
 
 results = {}
+--COPY
+overwrite = "meaning"
+src = {
+    just_called = "to say that it's good to be alive",
+    inner_rocks = {"Mercury", "Venus", "Earth", "Mars"},
+    [overwrite] = 20,
+    "I can ride my bike",
+    "With no handlebars"
+}
+safe_k = "safe"
+safe_v = "dont overwrite"
+overwrite_v = "please overwrite"
+targ1 = {[safe_k] = safe_v, [overwrite] = overwrite_v}
+base.copy(src, targ1)
+results["copy: shallow permitting"] = true
+for k,v in pairs(src) do
+    if targ1[k] ~= v then
+        results["copy: shallow permitting"] = false
+        break
+    end
+end
+results["copy: shallow limiting"] = true
+for k,v in pairs(targ1) do
+    if src[k] and src[k] ~= v then
+        results["copy: shallow limiting"] = false
+        break
+    end
+end
+results["copy: no overwrite"] = targ1[safe_k] == safe_v
+
+targ2 = {}
+base.copy(src, targ2, pairs, true)
+results["copy: deep, no table refs"] = true
+results["copy: deep, nested values"] = false
+results["copy: deep, normal values"] = true
+for k,v in pairs(src) do
+    cur_targ = targ2[k]
+    if type(cur_targ) == "table" then
+        if cur_targ == v then
+            results["copy: deep, no table refs"] = false
+        else
+            results["copy: deep, nested values"] = true
+            for vk,vv in pairs(v) do
+                if cur_targ[vk] ~= vv then
+                    results["copy: deep, nested values"] = false
+                end
+            end
+        end
+    elseif cur_targ ~= v then
+        results["copy: deep, normal values"] = false
+    end
+end
+
+targ3 = {}
+base.copy(src, targ3, ipairs)
+results["copy: actually uses custom iterator"] = true
+for k,v in pairs(src) do
+    cur_targ = targ3[k]
+    if type(k) == "number" and cur_targ ~= v then
+        results["copy: actually uses custom iterator"] = false
+    elseif type(k) ~= "number" and cur_targ == v then
+        results["copy: actually uses custom iterator"] = false
+    end
+end
+
 --REMOVE_V
 set_t = {"Just", "called", "to", "say", "that", "it's", "good", "to be"}
 set_f = {"I", "can", "ride", "my", "bike", "with", "no", "handlebars" }
