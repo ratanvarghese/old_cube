@@ -67,6 +67,18 @@ for k,v in pairs(src) do
     end
 end
 
+targ4 = base.copy(src)
+results["copy: return targ"] = true
+for k,v in pairs(src) do
+    if v ~= targ1[k] then
+        results["copy: return targ"] = false
+    end
+end
+for k,v in pairs(src) do
+    if v ~= targ4[k] then
+        results["copy: return targ"] = false
+    end
+end
 --REMOVE_V
 set_t = {"Just", "called", "to", "say", "that", "it's", "good", "to be"}
 set_f = {"I", "can", "ride", "my", "bike", "with", "no", "handlebars" }

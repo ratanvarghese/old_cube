@@ -1,6 +1,7 @@
 base = {}
 
 function base.copy(src, targ, iter, deep)
+    local targ = targ or {}
     local iter = iter or pairs
     for k,v in iter(src) do
         if type(v) == "table" and deep then
@@ -10,6 +11,7 @@ function base.copy(src, targ, iter, deep)
             targ[k] = v
         end
     end
+    return targ
 end
 
 function base.remove_v(t, targ_v)

@@ -137,11 +137,18 @@ function pt.all_positions(range)
     return iter, range, initial
 end
 
-pt.north = pt.at{y=-1}
-pt.south = pt.at{y=1}
-pt.west = pt.at{x=-1}
-pt.east = pt.at{x=1}
-pt.northwest = pt.north + pt.west
-pt.northeast = pt.north + pt.east
-pt.southwest = pt.south + pt.west
-pt.southeast = pt.south + pt.east
+pt.direction = {
+    north = pt.at{y=-1},
+    south = pt.at{y=1},
+    west = pt.at{x=-1},
+    east = pt.at{x=1}
+}
+pt.direction.northwest = pt.direction.north + pt.direction.west
+pt.direction.northeast = pt.direction.north + pt.direction.east
+pt.direction.southwest = pt.direction.south + pt.direction.west
+pt.direction.southeast = pt.direction.south + pt.direction.east
+
+
+for k,v in pairs(pt.direction) do
+    pt[k] = v
+end

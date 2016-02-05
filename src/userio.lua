@@ -30,14 +30,7 @@ default_controls.main = {
     q = "quit",
     ["?"] = "help"
 }
-
-local function direct_to_main(t, iter)
-    for k,v in iter(t.direction) do
-        t.main[k] = v
-    end
-end
-
-direct_to_main(default_controls, pairs)
+base.copy(default_controls.direction, default_controls.main)
 
 function userio.set_default_controls()
     userio.controls = {}
@@ -54,13 +47,14 @@ function userio.set_default_controls()
     userio.controls_ready = true
 end
 
-function userio.set_config_controls(config_controls)
-    local config_controls = config_controls or config.userinput.controls
+function userio.set_controls(t)
+    local config_controls = t.controls
     if not userio.controls_ready then
         userio.set_default_controls()
     end
     
     if not config_controls then
+        userio.message("No custom controls...")
         return nil
     end
 
@@ -72,37 +66,48 @@ function userio.set_config_controls(config_controls)
             break
         end
         for vk,vv in pairs(v) do
-            if userio.controls[k][vk] then
-                -- ["x"] = [...].pt.north
+            if userio.controls[k][vk] ~= nil then
+                -- ["k"] = [...].pt.north
                 userio.controls[k][vk] = vv
-            elseif userio.rev_controls[k][vk] then
-                -- [[...].pt.north] = "x"
+            elseif userio.rev_controls[k][vv] ~= nil then
+                -- as above, but for totally new keys
+                userio.rev_controls[k][vv] = vk
+            elseif userio.rev_controls[k][vk] ~= nil then
+                -- [[...].pt.north] = "k"
                 userio.rev_controls[k][vk] = vv
+            elseif userio.controls[k][vv] ~= nil then
+                -- as above, but for totally new keys
+                userio.controls[k][vv] = vk
             else
-                results.err = "Invalid control pair: " .. vk .. " " .. vv
+                vks = tostring(vk)
+                vvs = tostring(vv)
+                results.err = "Invalid control pair: "
+                results.err = results.err .. k .. " " .. vks .. " " .. vvs
                 results.success = false
                 break
             end
-            if not results.success then
-                break
-            end
+        end
+        if not results.success then
+            break
         end
     end
     if results.success then
-        direct_to_main(userio.controls, userio.controls_pairs.direction)
+        local main = userio.controls.main
+        local direction = userio.controls.direction
+        local iter = userio.controls_pairs.direction
+        base.copy(direction, main, iter)
+    else
+        userio.message(results.err .. " (in control config table)")
     end
-    return results.success, results.err .. " (in control config table)"
 end
 
-local results = {}
-results.success, results.err = userio.set_config_controls()
-if not results.success then
-    if low_level.is_ready() then
-        userio.message(results.err)
-    else
-        print(results.err)
-    end
+local t = {}
+for k in pairs(default_controls) do
+    t[k] = {}
 end
+config.add_to_userenv("controls", t)
+config.add_to_userenv("pt", pt.direction)
+config.add_hook(userio.set_controls)
 
 -- IO
 function userio.input(context, just_one_char, prompt)

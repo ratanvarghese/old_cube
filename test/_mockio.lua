@@ -5,7 +5,6 @@ local function new()
     local mockery = {
         get_max_x=actual_userio.get_max_x,
         get_max_y=actual_userio.get_max_y,
-        is_ready=actual_userio.is_ready,
         msg_buf={},
         prompt_buf={},
         screen={},
@@ -14,6 +13,7 @@ local function new()
         unprompted_string_input = "A",
         clear_count=0,
         refresh_count=0,
+        ready=true
     }
 
     for ix=0,mockery.get_max_x()-1 do

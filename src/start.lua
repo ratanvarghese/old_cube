@@ -1,4 +1,6 @@
 require("pt")
+require("config")
+config.readfile()
 
 rng.init(rng.metaseed)
 
