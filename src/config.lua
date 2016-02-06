@@ -1,3 +1,5 @@
+require("base")
+
 config = {}
 
 local hook_list = {}
@@ -18,6 +20,16 @@ end
 
 function config.add_to_userenv(k, v)
     userenv[k] = v
+end
+
+if debug then
+    function config.reset_module()
+        --For debugging ONLY
+        --Only resets this module, does not undo hook actions
+        hook_list = {}
+        userenv = {}
+        setmetatable(userenv, userenv_mt)
+    end
 end
 
 function config.readfile()
