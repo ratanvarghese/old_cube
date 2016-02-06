@@ -94,6 +94,40 @@ void setup_config_path(lua_State* L, char* argsort[])
     lua_settop(L, 0);
 }
 
+void setup_lualibs(lua_State* L, char* argsort[])
+{
+    if(argsort[MAINARG_TESTFILE])
+    {
+        luaL_openlibs(L);
+    }
+    else
+    {
+        //Only need a subsection of the standard libs
+        const luaL_Reg loadedlibs[] = {
+            {"_G", luaopen_base},
+            {LUA_LOADLIBNAME, luaopen_package},
+            {LUA_COLIBNAME, luaopen_coroutine}, //for time module
+            {LUA_TABLIBNAME, luaopen_table},
+            {LUA_IOLIBNAME, luaopen_io}, //for reading config/save files
+            {LUA_STRLIBNAME, luaopen_string},
+            {LUA_MATHLIBNAME, luaopen_math}, //for time module, harmless
+            {NULL, NULL}
+        };
+        for(const luaL_Reg* lib = loadedlibs; lib->func; lib++)
+        {
+            luaL_requiref(L, lib->name, lib->func, 1);
+            lua_pop(L, 1);
+        }
+    }
+}
+
+void setup_cubelibs(lua_State* L)
+{
+    //Needs to run after all the other setup
+    luaopen_userio(L);
+    luaopen_rng(L);
+}
+
 int main(int argc, char* argv[])
 {
     //Sort arguments
@@ -106,17 +140,17 @@ int main(int argc, char* argv[])
     
     //Setup Lua state
     lua_State* L = luaL_newstate();
-    luaL_openlibs(L);
+    setup_lualibs(L, argsort);
     setup_package_path(L, argsort);
     setup_config_path(L, argsort);
-
-    luaopen_userio(L);
-    luaopen_rng(L);
+    setup_cubelibs(L);
 
     //Choose entry point and run
     int status = 0;
     if(argsort[MAINARG_TESTFILE])
+    {
         status = luaL_dofile(L, argsort[MAINARG_TESTFILE]);
+    }
     else
     {    
         userio_override_lib(L);
