@@ -134,6 +134,23 @@ expected_k[rv] = nil
 expected_k[anv] = rk
 results["contrary: overwrite forward (opposite)"] = ft[anv] == rk
 results["contrary: overwrite reverse (opposite)"] = rt[rk] == anv
+yanv = "Yet another new value"
+nk1 = "new key 1"
+nk2 = "new key 2"
+ft[nk1] = yanv
+ft[nk2] = yanv
+expected_k[nk2] = yanv
+results["contrary: one-to-one forward"] = ft[nk1] == nil
+results["contrary: one-to-one reverse"] = rt[yanv] == nk2
+nk3 = "new key 3"
+dv = "decoy value"
+rt[dv] = nk3
+rt[yanv] = nk3
+expected_k[nk2] = nil
+expected_k[nk3] = yanv
+results["contrary: one-to-one forward (opposite)"] = ft[nk2] == nil
+results["contrary: one-to-one reverse (opposite)"] = rt[dv] == nil
+
 results["contrary: full key-value check forward"] = true
 results["contrary: fpairs keys limiting"] = true
 actual_k = {}
@@ -164,5 +181,7 @@ for k,v in rpairs() do
         break
     end
 end
+
+
 
 print_results(results, "base")

@@ -35,6 +35,9 @@ CONTRARY TABLES
 
 The key-value pairs of one are the value-key pairs of the other.
 They both update at once, one with the opposite key-value to the other.
+Both the forward and the reverse tables have one-to-one key-value
+relationships: if a new key is added for an existing value, the old key
+is removed.
 The metatables of contrary metatables cannot be accessed or changed.
 Contrary tables cannot be iterated over using pairs, but pairs-equivalent
 iterators are returned as the last two arguments.
@@ -49,6 +52,10 @@ function base.contrary(init)
             if fmt.storage[k] then
                 --removing old values in reverse table
                 base.remove_v(rmt.storage, k)
+            end
+            if rmt.storage[v] then
+                --removing old keys in this table!
+                base.remove_v(fmt.storage, v)
             end
             fmt.storage[k] = v
             rmt.storage[v] = k
