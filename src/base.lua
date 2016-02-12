@@ -22,7 +22,7 @@ function base.remove_v(t, targ_v)
         end
     end
     
-    count = 0
+    local count = 0
     for k in pairs(targ_k) do
         t[k] = nil
         count = count + 1
