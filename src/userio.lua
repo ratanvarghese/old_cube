@@ -32,6 +32,7 @@ default_controls.main = {
 }
 base.copy(default_controls.direction, default_controls.main)
 
+local controls_ready = false
 function userio.set_default_controls()
     userio.controls = {}
     userio.rev_controls = {}
@@ -44,61 +45,66 @@ function userio.set_default_controls()
         userio.controls_pairs[k] = fpairs
         userio.controls_rpairs[k] = rpairs
     end
-    userio.controls_ready = true
 end
 
-function userio.set_controls(t)
-    local config_controls = t.controls
-    if not userio.controls_ready then
-        userio.set_default_controls()
-    end
-    
-    if not config_controls then
-        userio.message("No custom controls...")
-        return nil
+userio.set_default_controls()
+
+function userio.set_one_control(k, vk, vv, msgerr)
+    local context = userio.controls[k]
+    local rev_context = userio.rev_controls[k]
+    if context == nil or rev_context == nil then
+        if msgerr then
+            userio.message("Invalid control context: " .. k)
+        end
+        return false
     end
 
-    local results = {success = true}
-    for k,v in pairs(config_controls) do
-        if userio.controls[k] == nil then
-            results.err = "Invalid control context: " .. k
-            results.success = false
-            break
+    local function assign_and_copy(t_inner, k_inner, v_inner)
+        t_inner[k_inner] = v_inner
+        if k == "direction" then --the outer k
+            userio.controls.main[k_inner] = v_inner
         end
+    end
+    
+    if context[vk] ~= nil then
+        assign_and_copy(context, vk, vv) -- ["k"] = [...].pt.north
+    elseif rev_context[vv] ~= nil then
+        assign_and_copy(rev_context, vv, vk) -- as above, wholly new keys
+    elseif rev_context[vk] ~= nil then
+        assign_and_copy(rev_context, vk, vv) -- [[...].pt.north] = "k"
+    elseif context[vv] ~= nil then
+        assign_and_copy(context, vv, vk) -- as above, for wholly new keys
+    else
+        if msgerr then
+            local err = "Invalid control pair: "
+            err = err .. k .. " " .. tostring(vk) .. " " .. tostring(vv)
+            userio.message(err .. " (in control config table)")
+        end
+        return false
+    end
+    return true
+end
+
+function userio.set_custom_controls(new_controls)
+    if not new_controls then
+        return false
+    end
+    
+    for k,v in pairs(new_controls) do
         for vk,vv in pairs(v) do
-            if userio.controls[k][vk] ~= nil then
-                -- ["k"] = [...].pt.north
-                userio.controls[k][vk] = vv
-            elseif userio.rev_controls[k][vv] ~= nil then
-                -- as above, but for totally new keys
-                userio.rev_controls[k][vv] = vk
-            elseif userio.rev_controls[k][vk] ~= nil then
-                -- [[...].pt.north] = "k"
-                userio.rev_controls[k][vk] = vv
-            elseif userio.controls[k][vv] ~= nil then
-                -- as above, but for totally new keys
-                userio.controls[k][vv] = vk
-            else
-                vks = tostring(vk)
-                vvs = tostring(vv)
-                results.err = "Invalid control pair: "
-                results.err = results.err .. k .. " " .. vks .. " " .. vvs
-                results.success = false
-                break
+            if not userio.set_one_control(k, vk, vv, true) then
+                userio.set_default_controls()
+                return false
             end
         end
-        if not results.success then
-            break
-        end
     end
-    if results.success then
-        local main = userio.controls.main
-        local direction = userio.controls.direction
-        local iter = userio.controls_pairs.direction
-        base.copy(direction, main, iter)
-    else
-        userio.message(results.err .. " (in control config table)")
-    end
+
+    local main = userio.controls.main
+    local direction = userio.controls.direction
+    local iter = userio.controls_pairs.direction
+    base.copy(direction, main, iter)
+
+    return true
 end
 
 local t = {}
@@ -107,7 +113,7 @@ for k in pairs(default_controls) do
 end
 config.add_to_userenv("controls", t)
 config.add_to_userenv("pt", pt.direction)
-config.add_hook(userio.set_controls)
+config.add_hook(function(t) userio.set_custom_controls(t.controls) end)
 
 -- IO
 function userio.input(context, just_one_char, prompt)
