@@ -38,7 +38,7 @@ They both update at once, one with the opposite key-value to the other.
 Both the forward and the reverse tables have one-to-one key-value
 relationships: if a new key is added for an existing value, the old key
 is removed.
-The metatables of contrary metatables cannot be accessed or changed.
+The metatables of contrary tables cannot be accessed or changed.
 Contrary tables cannot be iterated over using pairs, but pairs-equivalent
 iterators are returned as the last two arguments.
 Iterable key-values in init will be transferred to the forward table,

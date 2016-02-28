@@ -141,14 +141,11 @@ pt.direction = {
     north = pt.at{y=-1},
     south = pt.at{y=1},
     west = pt.at{x=-1},
-    east = pt.at{x=1}
+    east = pt.at{x=1},
+    up = pt.at{z=1},
+    down = pt.at{z=-1}
 }
 pt.direction.northwest = pt.direction.north + pt.direction.west
 pt.direction.northeast = pt.direction.north + pt.direction.east
 pt.direction.southwest = pt.direction.south + pt.direction.west
 pt.direction.southeast = pt.direction.south + pt.direction.east
-
-
-for k,v in pairs(pt.direction) do
-    pt[k] = v
-end

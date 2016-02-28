@@ -2,6 +2,7 @@
 --Be sure to change this file and l_userio.c when changing the UI
 --In the current UI, this file handles control schemes and IO
 require("pt")
+require("control")
 require("config")
 require("base")
 
@@ -13,107 +14,42 @@ userio = {
 }
 
 -- CONTROL SCHEMES
-local default_controls = {}
-default_controls.yes_no = {y=true, n=false}
-default_controls.yes_no_paranoid = {yes=true, no=false}
-default_controls.direction = {
-    k = pt.north,
-    j = pt.south,
-    h = pt.west,
-    l = pt.east,
-    y = pt.northwest,
-    u = pt.northeast,
-    b = pt.southwest,
-    n = pt.southeast
+control.new_default{
+    yes_no = {
+        yes = "y",
+        no = "n"
+    },
+    yes_no_paranoid = {
+        yes = "yes",
+        no = "no"
+    },
+    direction = {
+        north = "k",
+        south = "j",
+        west = "h",
+        east = "l",
+        northwest = "y",
+        northeast = "u",
+        southwest = "b",
+        southeast = "n",
+        up = "<",
+        down = ">"
+    },
+    main = {
+        quit = "q",
+        help = "?"
+    }
 }
-default_controls.main = {
-    q = "quit",
-    ["?"] = "help"
-}
-base.copy(default_controls.direction, default_controls.main)
 
-local controls_ready = false
-function userio.set_default_controls()
-    userio.controls = {}
-    userio.rev_controls = {}
-    userio.controls_pairs = {}
-    userio.controls_rpairs = {}
-    for k,v in pairs(default_controls) do
-        f, r, fpairs, rpairs = base.contrary(v)
-        userio.controls[k] = f
-        userio.rev_controls[k] = r
-        userio.controls_pairs[k] = fpairs
-        userio.controls_rpairs[k] = rpairs
-    end
-end
-
-userio.set_default_controls()
-
-function userio.set_one_control(k, vk, vv, msgerr)
-    local context = userio.controls[k]
-    local rev_context = userio.rev_controls[k]
-    if context == nil or rev_context == nil then
-        if msgerr then
-            userio.message("Invalid control context: " .. k)
-        end
-        return false
+config.add_to_userenv("control", control.cur)
+config.add_hook(function()
+    local status, msg = control.validate_cur()
+    if not status then
+        userio.message(msg .. " in config file")
+        control.reset()
     end
 
-    local function assign_and_copy(t_inner, k_inner, v_inner)
-        t_inner[k_inner] = v_inner
-        if k == "direction" then --the outer k
-            userio.controls.main[k_inner] = v_inner
-        end
-    end
-    
-    if context[vk] ~= nil then
-        assign_and_copy(context, vk, vv) -- ["k"] = [...].pt.north
-    elseif rev_context[vv] ~= nil then
-        assign_and_copy(rev_context, vv, vk) -- as above, wholly new keys
-    elseif rev_context[vk] ~= nil then
-        assign_and_copy(rev_context, vk, vv) -- [[...].pt.north] = "k"
-    elseif context[vv] ~= nil then
-        assign_and_copy(context, vv, vk) -- as above, for wholly new keys
-    else
-        if msgerr then
-            local err = "Invalid control pair: "
-            err = err .. k .. " " .. tostring(vk) .. " " .. tostring(vv)
-            userio.message(err .. " (in control config table)")
-        end
-        return false
-    end
-    return true
-end
-
-function userio.set_custom_controls(new_controls)
-    if not new_controls then
-        return false
-    end
-    
-    for k,v in pairs(new_controls) do
-        for vk,vv in pairs(v) do
-            if not userio.set_one_control(k, vk, vv, true) then
-                userio.set_default_controls()
-                return false
-            end
-        end
-    end
-
-    local main = userio.controls.main
-    local direction = userio.controls.direction
-    local iter = userio.controls_pairs.direction
-    base.copy(direction, main, iter)
-
-    return true
-end
-
-local t = {}
-for k in pairs(default_controls) do
-    t[k] = {}
-end
-config.add_to_userenv("controls", t)
-config.add_to_userenv("pt", pt.direction)
-config.add_hook(function(t) userio.set_custom_controls(t.controls) end)
+end)
 
 -- IO
 function userio.input(context, just_one_char, prompt)
@@ -124,7 +60,18 @@ function userio.input(context, just_one_char, prompt)
         s = low_level.get_string(prompt)
     end
 
-    return context[s]
+    if type(context) == "string" then
+        assert(control.rev[context], "Invalid control context" .. context)
+        return control.rev[context][s]
+    elseif type(context) == "table" then
+        for i,v in ipairs(context) do
+            assert(control.rev[v], "Invalid control context" .. v)
+            if control.rev[v][s] then
+                return control.rev[v][s]
+            end
+        end
+    end
+    return false
 end
 
 function userio.display(entities, logical_center)
