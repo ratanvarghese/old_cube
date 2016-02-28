@@ -1,6 +1,6 @@
 SHELL:=/usr/bin/bash
 CC=gcc
-CFLAGS=-c -Wall -pedantic-errors -Werror -std=c11
+CFLAGS=-c -Wall -pedantic-errors -Werror -std=c99
 LIBS=-llua -lncurses
 
 CSRC=./src/

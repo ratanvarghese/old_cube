@@ -27,9 +27,21 @@ typedef enum
 }
 t_mainarg;
 
-bool strcmp_or(const char* to_judge, const char* alt1, const char* alt2)
+const char* flag_l[MAINARG_MAX] = 
 {
-    return !strcmp(to_judge, alt1) || !strcmp(to_judge, alt2);
+    [MAINARG_TESTFILE] = "--test",
+    [MAINARG_CONFIGFILE] = "--config"
+};
+
+const char* flag_s[MAINARG_MAX] = 
+{
+    [MAINARG_TESTFILE] = "-t",
+    [MAINARG_CONFIGFILE] = "-c"
+};
+
+bool equalarg(const char* s, t_mainarg argcode)
+{
+    return !strcmp(s, flag_s[argcode]) || !strcmp(s, flag_l[argcode]);
 }
 
 //argsort must have size MAINARG MAX, argv must have size argc
@@ -38,10 +50,11 @@ void interpret_args(int argc, char* argv[], char* argsort[])
     //Skip exec name, increment up to second-to-last arg
     for(int i = 1; i < (argc-1); i++) 
     {
-        if(strcmp_or(argv[i], "--test", "-t"))
-            argsort[MAINARG_TESTFILE] = argv[i+1];
-        if(strcmp_or(argv[i], "--config", "-c"))
-            argsort[MAINARG_CONFIGFILE] = argv[i+1];
+        for(t_mainarg j = 0; j < MAINARG_MAX; j++)
+        {
+            if(!argsort[j] && equalarg(argv[i], j))
+                argsort[j] = argv[i+1];
+        }
     }
 }
 
