@@ -1,7 +1,10 @@
 require("pt")
 require("config")
 require("control")
-config.readfile()
+err = config.readfile()
+if err then
+    userio.message(err)
+end
 
 rng.init(rng.metaseed)
 

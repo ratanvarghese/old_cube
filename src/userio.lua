@@ -3,7 +3,6 @@
 --In the current UI, this file handles control schemes and IO
 require("pt")
 require("control")
-require("config")
 require("base")
 
 assert(userio, "userio.lua has nothing to override")
@@ -40,16 +39,6 @@ control.new_default{
         help = "?"
     }
 }
-
-config.add_to_userenv("control", control.cur)
-config.add_hook(function()
-    local status, msg = control.validate_cur()
-    if not status then
-        userio.message(msg .. " in config file")
-        control.reset()
-    end
-
-end)
 
 -- IO
 function userio.input(context, just_one_char, prompt)
