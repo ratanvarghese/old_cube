@@ -24,22 +24,29 @@ else
     local tmp_name = "./cnf_tmp"
     cache_cuberc(tmp_name)
 
-    test1 = "Successful interpret"
+    test1 = "Interpret"
     results[test1] = false
     msg = "I can ride my bike with no handlebars"
     f1 = function(t) results[test1] = t.msg == msg end
     config.add_hook(f1)
+    test2 = "Error-free interpret."
+    results[test2] = true
+    e1 = function(t, e)
+        results[test2] = false
+        print( e )
+    end
+    config.add_errhook(e1)
     write_cuberc("msg = \"" .. msg .. "\"")
     config.readfile()
 
     config.reset_module()
-    test2 = "Add to userenv"
-    results[test2] = false
+    test3 = "Add to userenv"
+    results[test3] = false
     user_t = {}
     user_tname = "user_tname"
     user_k = "user_k"
     config.add_to_userenv(user_tname, user_t)
-    f2 = function(t) results[test2] = t[user_tname][user_k] == msg end 
+    f2 = function(t) results[test3] = t[user_tname][user_k] == msg end 
     config.add_hook(f2)
     write_cuberc(user_tname .. "." .. user_k  .. " = \"" .. msg .. "\"")
     config.readfile()

@@ -33,6 +33,7 @@ if debug then
         --For debugging ONLY
         --Only resets this module, does not undo hook actions
         hook_list = {}
+        errhook_list = {}
         userenv = {}
         setmetatable(userenv, userenv_mt)
     end
@@ -44,14 +45,11 @@ function config.readfile()
             local chunk, err = loadfile(CUBE_CONFIG, "t", userenv)
             if chunk then
                 chunk()
-            else
-                error(err)
-            end
-
-            if t.chunk and t.status then
                 for i,v in ipairs(hook_list) do
                     v(userinput)
                 end
+            else
+                error(err)
             end
         end
     end
@@ -59,8 +57,8 @@ function config.readfile()
     local status, err = pcall(readfile_nocatch)
     if not status then
         for i,v in pairs(errhook_list) do
-            v(userinput)
+            v(userinput, err)
         end
-        return err .. " (in config file)"
+        return "ERROR: Bad config file (generated '" .. err .. "')"
     end
 end

@@ -4,7 +4,7 @@ function print_results(tests, module_name)
     for k,v in pairs(tests) do
         if not v then
             if count == 0 then
-                print("Failure(s) in " .. module_name)
+                print("Failure(s) in " .. module_name .. ":")
                 printed_title = true
             end
             print(k)
