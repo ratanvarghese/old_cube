@@ -29,7 +29,7 @@ else
     msg = "I can ride my bike with no handlebars"
     f1 = function(t) results[test1] = t.msg == msg end
     config.add_hook(f1)
-    test2 = "Error-free interpret."
+    test2 = "Error-free ordinary interpret"
     results[test2] = true
     e1 = function(t, e)
         results[test2] = false
@@ -49,6 +49,19 @@ else
     f2 = function(t) results[test3] = t[user_tname][user_k] == msg end 
     config.add_hook(f2)
     write_cuberc(user_tname .. "." .. user_k  .. " = \"" .. msg .. "\"")
+    config.readfile()
+
+    config.reset_module()
+    test4 = "Errhook called"
+    test5 = "Errhook includes error message"
+    results[test4] = false
+    results[test5] = false
+    e2 = function(t, e)
+        results[test4] = true
+        results[test5] = type(e) == "string"
+    end
+    config.add_errhook(e2)
+    write_cuberc("This is not valid lua code, I don't think...")
     config.readfile()
 
     config.reset_module()
