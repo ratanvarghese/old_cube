@@ -57,8 +57,8 @@ function base.contrary(init)
                 --removing old keys in this table!
                 base.remove_v(fmt.storage, v)
             end
-            fmt.storage[k] = v
-            rmt.storage[v] = k
+            if k ~= nil then fmt.storage[k] = v end
+            if v ~= nil then rmt.storage[v] = k end
         end
         fmt.__metatable = false
     end

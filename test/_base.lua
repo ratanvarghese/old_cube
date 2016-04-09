@@ -182,6 +182,6 @@ for k,v in rpairs() do
     end
 end
 
-
+results["contrary: safely set nil"] = pcall(function() ft[nk3] = nil end)
 
 print_results(results, "base")
