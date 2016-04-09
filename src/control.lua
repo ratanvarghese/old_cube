@@ -39,8 +39,7 @@ end
 
 function control.new_default(t)
     --default control set must be complete!
-    local errmsg = "Attempt to change default control table"
-    assert(not default_ready, errmsg)
+    assert(not default_ready, "Attempt to change default control table")
         
     for k,v in pairs(valid_control_list) do
         default_table[k] = {}
