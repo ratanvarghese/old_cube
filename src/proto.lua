@@ -4,14 +4,15 @@ local all_proto = {}
 
 function proto.register(t)
     assert(type(t.name) == "string", "Non string name for prototype")
+    assert(not all_proto[t.name], "In-use prototype name")
     all_proto[t.name] = t
 
-    local supername = t.super
-    if supername then
-        local super = all_proto[supername]
-        assert(super, "Unrecognized supertype " .. tostring(supername))
+    local sname = t.supername
+    if sname then
+        local super = all_proto[sname]
+        assert(super, "Unrecognized supertype " .. tostring(sname))
         setmetatable(t, {__index = super})
-        t.super = super --Yes, replacing name with table reference
+        t.super = super
     end
 end
 

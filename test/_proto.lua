@@ -17,7 +17,7 @@ results[test2] = my_goblin.symbol == goblin_proto.symbol
 
 test3 = "Inherit data"
 orc_proto = {
-    super = "goblin",
+    supername = "goblin",
     name = "orc",
 }
 proto.register(orc_proto)
@@ -45,7 +45,7 @@ results[test5] = true
 clone_count = 0
 pitbull_hp = 30
 pitbull_proto = {
-    super = "dog",
+    supername = "dog",
     name = "pitbull",
     clone_init = function(res, p)
         p.super.clone_init(res, p)
@@ -56,5 +56,14 @@ proto.register(pitbull_proto)
 pitbull1 = proto.clone_of("pitbull")
 if clone_count ~= 1 then results[test5] = false end
 if pitbull1.hp ~= pitbull_hp then results[test5] = false end
+
+test6 = "error on in-use name"
+results[test6] = not pcall(function() proto.register{name = "dog"} end)
+
+test7 = "error on non-string name"
+results[test7] = not pcall(function() proto.register{name = true} end)
+
+test8 = "error on unrecognized prototype name"
+results[test8] = not pcall(function() c = proto.clone_of("nonexist") end)
 
 print_results(results, "proto")
