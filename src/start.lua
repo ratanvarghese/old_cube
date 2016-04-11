@@ -1,6 +1,9 @@
 require("pt")
 require("config")
 require("control")
+require("monst")
+require("terrain")
+
 err = config.readfile()
 if err then
     userio.message(err)
@@ -10,14 +13,14 @@ rng.init(rng.metaseed)
 
 stage = {}
 for p in pt.all_positions{max=pt.max*pt.at{x=1,y=1}} do
-    c = "."
-    if rng.coin() then c = "#" end
-    stage[tostring(p)] = {symbol=c}
+    local terrain_name = "floor"
+    if rng.coin() then terrain_name = "wall" end
+    stage[tostring(p)] = proto.clone_of(terrain_name)
 end
 
 
 center = pt.at{x=10, y=10, z=pt.heights.standing}
-dude = {symbol="@"}
+dude = proto.clone_of("human")
 function dude.move_to(p)
     if pt.valid_position(p) then
         stage[tostring(dude.position)] = nil
