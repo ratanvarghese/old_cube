@@ -40,7 +40,7 @@ relationships: if a new key is added for an existing value, the old key
 is removed.
 The metatables of contrary tables cannot be accessed or changed.
 Contrary tables cannot be iterated over using pairs, but pairs-equivalent
-iterators are returned as the last two arguments.
+iterators are returned as the last two return values.
 Iterable key-values in init will be transferred to the forward table,
 and transferred to the reverse table as value-keys.
 --]]
