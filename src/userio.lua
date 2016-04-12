@@ -79,8 +79,7 @@ function userio.display(entities, logical_center)
     
     for p in pt.all_positions{min=display_min, max=display_max} do
         local logical_p = p + shift
-        local logical_k = tostring(logical_p)
-        local targ = entities[logical_k]
+        local targ = entities[logical_p]
         if targ and targ.symbol then
             low_level.display_char(targ.symbol, p.x, p.y)
         elseif logical_p.z == 0 then --" " shouldn't overwrite symbols

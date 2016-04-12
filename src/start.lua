@@ -3,6 +3,7 @@ require("config")
 require("control")
 require("monst")
 require("terrain")
+require("stage")
 
 err = config.readfile()
 if err then
@@ -11,11 +12,11 @@ end
 
 rng.init(rng.metaseed)
 
-stage = {}
+my_stage = stage.new()
 for p in pt.all_positions{max=pt.max*pt.at{x=1,y=1}} do
     local terrain_name = "floor"
     if rng.coin() then terrain_name = "wall" end
-    stage[tostring(p)] = proto.clone_of(terrain_name)
+    my_stage[p] = proto.clone_of(terrain_name)
 end
 
 
@@ -23,19 +24,18 @@ center = pt.at{x=10, y=10, z=pt.heights.standing}
 dude = proto.clone_of("human")
 function dude.move_to(p)
     if pt.valid_position(p) then
-        stage[tostring(dude.position)] = nil
-        dude.position = p
+        stage.mv(my_stage, dude, dude.pt, p, "pt")
         center = p
-        stage[tostring(p)] = dude
         return true
     else
         return false
     end
 end
-dude.move_to(center)
+my_stage[center] = dude
+dude.pt = center
 
 main_control = {"main", "direction"}
-userio.display(stage, center)
+userio.display(my_stage, center)
 while true do
     local input = userio.input(main_control, true, "> ")
     local mv = pt.direction[input]
@@ -44,8 +44,8 @@ while true do
             userio.message("You jump!")
         elseif mv == pt.direction.down then
             userio.message("You crouch...")
-        elseif dude.move_to(mv + dude.position) then
-            userio.display(stage, center)
+        elseif dude.move_to(mv + dude.pt) then
+            userio.display(my_stage, center)
         else
             userio.message("Bump!")
         end

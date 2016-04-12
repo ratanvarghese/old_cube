@@ -8,6 +8,7 @@ userio = mock_io
 
 require("userio")
 require("pt")
+require("stage")
 
 -- IO
 msg = "I can ride my bike with no handlebars." --Flobot
@@ -41,21 +42,21 @@ floor_end = pt.at{x=pt.max.x, y=pt.max.y, z=pt.heights.terrain}
 herd_start = pt.at{x=60, y=40, z=pt.heights.standing}
 herd_end = pt.at{x=70, y=50, z=pt.heights.standing}
 
-stage = {}
+my_stage = stage.new()
 for p in pt.all_positions{min=floor_start, max=floor_end} do
-    stage[tostring(p)] = floor
+    my_stage[p] = floor
 end
 
 for p in pt.all_positions{min=herd_start, max=herd_end} do
-    stage[tostring(p)] = sheeple
+    my_stage[p] = sheeple
 end
 
 for p in pt.all_positions{min=army_start, max=center} do
-    stage[tostring(p)] = dude
+    my_stage[p] = dude
 end
 
 upper_gap = 2
-userio.display(stage, center - pt.at{x=0, y=upper_gap, z=0})
+userio.display(my_stage, center - pt.at{x=0, y=upper_gap, z=0})
 
 results["Display blank"] = true
 results["Display army"] = true
