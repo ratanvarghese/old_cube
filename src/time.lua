@@ -61,10 +61,16 @@ local function loop(go_func, time_table)
 
     update_routine_list(time_table)
 
-    while go_func() do
+    local continue = true
+    while true do
         time_table.all_undos[time_table.tick] = {}
 
         for i,v in ipairs(time_table.all_routines) do
+            if not go_func() then
+                continue = false
+                break
+            end
+
             local fail1 = coroutine.status(v) == "dead"
             local fail2 = time_table.remove_set[v]  
             if not fail1 and not fail2 then
@@ -74,9 +80,13 @@ local function loop(go_func, time_table)
                 table.insert(time_table.all_undos[time_table.tick] , undo)
             end
         end
-
+        
         update_routine_list(time_table)
         time_table.tick = time_table.tick + 1
+
+        if not continue then
+            break
+        end
     end
 end
 
