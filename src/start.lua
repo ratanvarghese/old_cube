@@ -4,6 +4,9 @@ require("control")
 require("monst")
 require("terrain")
 require("stage")
+require("player")
+require("mind")
+require("time")
 
 err = config.readfile()
 if err then
@@ -21,37 +24,9 @@ end
 
 
 center = pt.at{x=10, y=10, z=pt.heights.standing}
-dude = proto.clone_of("human")
-function dude.move_to(p)
-    if pt.valid_position(p) then
-        stage.mv(my_stage, dude, dude.pt, p, "pt")
-        center = p
-        return true
-    else
-        return false
-    end
-end
-my_stage[center] = dude
-dude.pt = center
+pbody = player.init_body()
+mind.player(pbody)
+player.put_on_stage(my_stage, center)
 
-main_control = {"main", "direction"}
-userio.display(my_stage, center)
-while true do
-    local input = userio.input(main_control, true, "> ")
-    local mv = pt.direction[input]
-    if mv then
-        if mv == pt.direction.up then
-            userio.message("You jump!")
-        elseif mv == pt.direction.down then
-            userio.message("You crouch...")
-        elseif dude.move_to(mv + dude.pt) then
-            userio.display(my_stage, center)
-        else
-            userio.message("Bump!")
-        end
-    elseif input == "quit" then
-        break
-    else
-        userio.message("Invalid input")
-    end
-end
+time.add(player.mind.co)
+time.loop(function() return player.continuing end)

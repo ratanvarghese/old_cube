@@ -8,11 +8,13 @@ proto.register{
 proto.register{
     name = "human",
     supername = "monster",
+    mindname = "sentient",
     symbol = "@",
 }
 
 proto.register{
     name = "dog",
     supername = "monster",
+    mindname = "animal",
     symbol = "d",
 }
