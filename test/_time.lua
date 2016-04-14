@@ -6,6 +6,7 @@ local kill_wait = 5
 
 local runs = {}
 runs.basic = 0
+runs.racer = 0
 runs.spawner = 0
 runs.alt = 0
 runs.killer = 0
@@ -17,6 +18,15 @@ co.basic = coroutine.create(function()
         runs.basic = runs.basic + 1
         coroutine.yield(function()
             runs.basic = runs.basic - 1
+        end)
+    end
+end)
+
+co.racer = coroutine.create(function()
+    while true do
+        runs.racer = runs.racer + 1
+        coroutine.yield(function()
+            runs.racer = runs.racer - 1
         end)
     end
 end)
@@ -77,10 +87,13 @@ local wait_5 = wait_1
 local alt_max = kill_wait - spawn_wait - 1 --kill tick = kill request tick
 
 time.add(co.basic)
-time.loop(function() return time.current() < wait_1 end)
+time.add(co.racer)
+time.loop(function() return runs.basic < wait_1 end)
 
-tests["Basic tick count"] = time.current() == wait_1
+tests["Basic tick count"] = time.current() == wait_1 - 1
 tests["Basic forward loop"] = runs.basic == wait_1
+
+tests["Basic early exit"] = runs.racer == runs.basic - 1
 
 time.reverse(rev_1)
 tests["Basic partial tick reverse"] = time.current() == rev_1

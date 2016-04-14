@@ -80,13 +80,13 @@ local function loop(go_func, time_table)
                 table.insert(time_table.all_undos[time_table.tick] , undo)
             end
         end
-        
-        update_routine_list(time_table)
-        time_table.tick = time_table.tick + 1
 
         if not continue then
             break
         end
+        
+        update_routine_list(time_table)
+        time_table.tick = time_table.tick + 1
     end
 end
 
