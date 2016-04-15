@@ -18,17 +18,13 @@ results[test4] = pcall(function() my_stage[pt.at{x=1, y=2, z=3}] = {} end)
 ent = {}
 old_pt = pt.at{x=2, y=4}
 new_pt = pt.at{x=8, y=16}
-my_stage[old_pt] = ent
-stage.mv(my_stage, ent, old_pt, new_pt)
+my_stage:add_ent(ent, old_pt)
+my_stage:mv_ent(ent, new_pt)
 results["mv occupy new_pt"] = my_stage[new_pt] == ent
 results["mv free old_pt"] = my_stage[old_pt] == nil
 
 newest_pt = pt.at{x=16, y=4}
-stage.mv(my_stage, ent, new_pt, newest_pt, "pt")
+my_stage:mv_ent(ent, newest_pt)
 results["mv update ent"] = ent.pt == newest_pt
-
-results["mv error on wrong start"] = not pcall(function()
-    stage.mv(my_stage, ent, old_pt, new_pt)
-end)
 
 print_results(results, "stage")

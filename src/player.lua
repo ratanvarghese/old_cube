@@ -13,44 +13,41 @@ function player.init_body()
     return player.body
 end
 
-function player.put_on_stage(cur_stage, position)
-    cur_stage[position] = player.body
-    player.body.pt = position
-    userio.display(my_stage, position)
-end
-
 local function player_logic()
     local main_control = {"main", "direction"}
-    local function move_to(p)
-        if pt.valid_position(p) then
-            stage.mv(my_stage, player.body, player.body.pt, p, "pt")
-            center = p
-            return true
+    local body = player.body
+
+    local function move_action(vector)
+        if vector == pt.direction.up then
+            userio.message("You jump!")
+        elseif vector == pt.direction.down then
+            userio.message("You crouch...")
+        elseif body.stage:mv_ent(body, vector + body.pt) then
+            userio.display(body.stage, body.pt)
+            return function()
+                local rev_vector = pt.at{x=-1, y=-1, z=-1}
+                body.stage:mv_ent(body, (rev_vector * vector) + body.pt)
+                userio.display(body.stage, body.pt)
+            end 
         else
-            return false
+            userio.message("Bump!")
         end
+        return function() end
     end
 
     while true do
         local input = userio.input(main_control, true, "> ")
-        local mv = pt.direction[input]
-        if mv then
-            if mv == pt.direction.up then
-                userio.message("You jump!")
-            elseif mv == pt.direction.down then
-                userio.message("You crouch...")
-            elseif move_to(mv + player.body.pt) then
-                userio.display(my_stage, center)
-            else
-                userio.message("Bump!")
-            end
+        local vector = pt.direction[input]
+        local reversal = function() end
+        if vector then
+            reversal = move_action(vector)
         elseif input == "quit" then
             userio.message("Goodbye")
             player.continuing = false
         else
             userio.message("Invalid input")
         end
-        coroutine.yield(function() end)
+        coroutine.yield(reversal)
     end
 end
 

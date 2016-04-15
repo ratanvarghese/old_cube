@@ -19,14 +19,14 @@ my_stage = stage.new()
 for p in pt.all_positions{max=pt.max*pt.at{x=1,y=1}} do
     local terrain_name = "floor"
     if rng.coin() then terrain_name = "wall" end
-    my_stage[p] = proto.clone_of(terrain_name)
+    my_stage:add_ent(proto.clone_of(terrain_name), p)
 end
 
-
-center = pt.at{x=10, y=10, z=pt.heights.standing}
 pbody = player.init_body()
+my_stage:add_ent(pbody, pt.at{x=10, y=10, z=pt.heights.standing})
 mind.player(pbody)
-player.put_on_stage(my_stage, center)
+userio.display(my_stage, pbody.pt)
 
 time.add(player.mind.co)
 time.loop(function() return player.continuing end)
+time.reverse(0)

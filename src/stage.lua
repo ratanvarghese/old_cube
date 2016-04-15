@@ -1,11 +1,11 @@
 require("pt")
 require("base")
 
+stage = {}
 local protostage = {}
-
 local stage_mt = {
     __index = function(t, k)
-        return rawget(t, tostring(k))
+        return stage[k] or rawget(t, tostring(k))
     end,
     __newindex = function(t, k, v)
         if protostage[k] then
@@ -18,8 +18,6 @@ local stage_mt = {
     end,
 }
 
-stage = {}
-
 function stage.new()
     local res = base.copy(protostage)
     setmetatable(res, stage_mt)
@@ -30,14 +28,31 @@ function stage.is_stage(t)
     return getmetatable(t) == stage_mt
 end
 
-function stage.mv(stage, ent, old_pt, new_pt, ent_idx)
-    if stage[old_pt] == ent then
-        stage[old_pt] = nil
-        stage[new_pt] = ent
-        if ent_idx then
-            ent[ent_idx] = new_pt
-        end
+function stage.add_ent(cur_stage, ent, pos)
+    if cur_stage[pos] then
+        return false
     else
-        error("Wrong initial position: " .. tostring(old_pt))
+        cur_stage[pos] = ent
+        ent.pt = pos
+        ent.stage = cur_stage
+        return true
+    end
+end
+
+function stage.rem_ent(cur_stage, ent)
+    cur_stage[ent.pt] = nil
+    ent.pt = nil
+    ent.stage = nil
+end
+
+stage.mverr = {invalid_pos = 1, occupied = 2} 
+function stage.mv_ent(cur_stage, ent, new_pos)
+    if pt.valid_position(new_pos) then
+        cur_stage[ent.pt] = nil
+        cur_stage[new_pos] = ent
+        ent.pt = new_pos
+        return true
+    else
+        return false, stage.mverr.invalid_pos
     end
 end
