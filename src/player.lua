@@ -7,11 +7,10 @@ require("monst")
 player = {}
 player.continuing = true
 
-local function player_logic()
+local function player_logic(b, m)
     local actions = {}
 
-    function actions.move(vector)
-        local b = player.body
+    function actions.move(b, vector)
         if vector == pt.direction.up then
             userio.message("You jump!")
         elseif vector == pt.direction.down then
@@ -32,21 +31,23 @@ local function player_logic()
         userio.message("Goodbye")
         player.continuing = false
     end
-    
+
     function actions.help()
         userio.message("Maybe laterrrrrr....")
     end
 
-    local main_control = {"main", "direction"}
-    while true do
-        local input = userio.input(main_control, true, "> ")
-        local reverse = false
-        if actions[input] then
-            reverse = actions[input]()
-        elseif pt.direction[input] then
-            reverse = actions.move(pt.direction[input])
+    return function()
+        local main_control = {"main", "direction"}
+        while true do
+            local input = userio.input(main_control, true, "> ")
+            local reverse = false
+            if actions[input] then
+                reverse = actions[input]()
+            elseif pt.direction[input] then
+                reverse = actions.move(b, pt.direction[input])
+            end
+            coroutine.yield(reverse or function() end)
         end
-        coroutine.yield(reverse or function() end)
     end
 end
 
@@ -56,9 +57,9 @@ function player.init()
 
     b.mind = {}
     b.mind.free_will = 100
-    b.mind.co = coroutine.create(player_logic)
+    b.mind.co = coroutine.create(player_logic(b, mind))
     
-    b.mind.body = body
+    b.mind.body = b
     player.mind = b.mind
 
     return b

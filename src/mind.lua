@@ -5,7 +5,6 @@ function mind.suits_body(b)
 end
 
 mind.sentient = function() end
-mind.animal = function() end
 
 function mind.is_valid(t)
     --TODO: loyalty

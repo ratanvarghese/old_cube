@@ -63,7 +63,14 @@ function userio.input(context, just_one_char, prompt)
     return false
 end
 
+
+local legit_logic_center = pt.min
 function userio.display(entities, logical_center)
+    if logical_center then
+        legit_logic_center = logical_center
+    else
+        logical_center = legit_logic_center
+    end
     local display_min = pt.at{x=0, y=0, z=0}
     local display_max = pt.at{
         x = low_level.get_max_x() - 1,
