@@ -54,7 +54,7 @@ function userio.input(context, just_one_char, prompt)
         return control.rev[context][s]
     elseif type(context) == "table" then
         for i,v in ipairs(context) do
-            assert(control.rev[v], "Invalid control context" .. v)
+            assert(control.rev[v], "Invalid control " .. v)
             if control.rev[v][s] then
                 return control.rev[v][s]
             end
@@ -84,6 +84,7 @@ function userio.display(entities, logical_center)
             low_level.display_char(targ.symbol, p.x, p.y)
         elseif logical_p.z == 0 then --" " shouldn't overwrite symbols
             low_level.display_char(" ", p.x, p.y)
-        end end
+        end
+    end
     low_level.display_refresh()
 end

@@ -1,7 +1,8 @@
+require("base")
+
 local function create_time_table()
     local result = {}
     result.tick = 0
-    result.tick_max = 20
     result.add_list = {} --ordered
     result.add_set = {} --unordered
     result.remove_set = {} --unordered
@@ -10,111 +11,86 @@ local function create_time_table()
     return result
 end
 
+time = {}
 local default_time = create_time_table()
 
-local function current(time_table)
-    if not time_table then time_table = default_time end
-    return time_table.tick
+function time.current(time_t)
+    local time_t = time_t or default_time
+    return time_t.tick
 end
 
-local function add(routine, time_table)
+function time.add(routine, time_t)
     --need ordered addition, unordered checking
     --an added entity can change behavior of existing entities
-    if not time_table then time_table = default_time end
+    local time_t = time_t or default_time
     assert(type(routine) == "thread", "Time: invalid add")
-    table.insert(time_table.add_list, routine)
-    time_table.add_set[routine] = true
+    table.insert(time_t.add_list, routine)
+    time_t.add_set[routine] = true
 end
 
-local function remove(routine, time_table)
+function time.remove(routine, time_t)
     --only unordered checking needed
     --once removal request is sent, entity is inactive
     assert(type(routine) == "thread", "Time: invalid remove")
-    if not time_table then time_table = default_time end
-    time_table.remove_set[routine] = true
+    local time_t = time_t or default_time
+    time_t.remove_set[routine] = true
 end
 
-local function loop(go_func, time_table)
-    if not time_table then time_table = default_time end
-    if not go_func then
-        go_func = function()
-            return time_table.tick < time_table.tick_max
-        end
-    end
-    
-    local function update_routine_list(time_table)
-        for i,v in ipairs(time_table.add_list) do
-            table.insert(time_table.all_routines, v)
-        end
-
-        for i=1,#time_table.all_routines do
-            local v = time_table.all_routines[i]
-            if time_table.remove_set[v] then
-                table.remove(time_table.all_routines, i)
+function time.loop(go_func, time_t)
+    local function update_routine_list(time_t)
+        base.join_list(time_t.add_list, time_t.all_routines)
+        for i=1,#time_t.all_routines do
+            if time_t.remove_set[time_t.all_routines[i]] then
+                table.remove(time_t.all_routines, i)
             end
         end
     
-        time_table.remove_set = {}
-        time_table.add_set = {}
-        time_table.add_list = {}
+        time_t.remove_set = {}
+        time_t.add_set = {}
+        time_t.add_list = {}
     end
 
-    update_routine_list(time_table)
+    local time_t = time_t or default_time
+    assert(type(go_func) == "function", "Missing go_func")
+    update_routine_list(time_t)
 
-    local continue = true
     while true do
-        time_table.all_undos[time_table.tick] = {}
+        local continue = true
+        time_t.all_undos[time_t.tick] = {}
+        for i,v in ipairs(time_t.all_routines) do
+            continue = go_func()
+            if not continue then break end
 
-        for i,v in ipairs(time_table.all_routines) do
-            if not go_func() then
-                continue = false
-                break
+            if coroutine.status(v) == "dead" then
+                time.remove(v, time_t)
             end
 
-            local fail1 = coroutine.status(v) == "dead"
-            local fail2 = time_table.remove_set[v]  
-            if not fail1 and not fail2 then
+            if not time_t.remove_set[v] then
                 local status, undo = coroutine.resume(v)
                 assert(status, undo) --undo would hold error info
                 assert(type(undo)=="function", "Time: non-function undo")
-                table.insert(time_table.all_undos[time_table.tick] , undo)
+                table.insert(time_t.all_undos[time_t.tick] , undo)
             end
         end
-
-        if not continue then
-            break
-        end
-        
-        update_routine_list(time_table)
-        time_table.tick = time_table.tick + 1
+        if not continue then break end
+        update_routine_list(time_t)
+        time_t.tick = time_t.tick + 1
     end
 end
 
-local function reverse(dest_tick, time_table)
-    if not time_table then time_table = default_time end
+function time.reverse(dest_tick, time_t)
+    local time_t = time_t or default_time
     dest_tick = math.tointeger(dest_tick)
 
     assert(dest_tick >= 0, "Time: attempt to travel to negative time")
-    assert(dest_tick < time_table.tick, "Time: future travel in reverse")
+    assert(dest_tick < time_t.tick, "Time: future travel in reverse")
 
-    for t=time_table.tick,dest_tick,-1 do
-        if time_table.all_undos[t] then
-            for i,v in ipairs(time_table.all_undos[t]) do
-                v()
-            end
-            time_table.all_undos[t] = nil
+    for t=time_t.tick,dest_tick,-1 do
+        if time_t.all_undos[t] then
+            for i,v in ipairs(time_t.all_undos[t]) do v() end
+            time_t.all_undos[t] = nil
         end
 
-        if t ~= dest_tick then
-            time_table.tick = time_table.tick - 1
-        end
+        if t ~= dest_tick then time_t.tick = time_t.tick - 1 end
     end
 end
-
-time = {
-    current = current,
-    add = add,
-    remove = remove,
-    loop = loop,
-    reverse = reverse,
-}

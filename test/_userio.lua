@@ -34,13 +34,13 @@ dude = {symbol="@"}
 floor = {symbol="."}
 sheeple = {symbol="q"}
 phalanx_side = 5
-center = pt.at{x=10, y=10, z=pt.heights.standing}
+center = pt.at{x=10, y=10, z=pt.heights.stand}
 army_start = center - pt.at{x=phalanx_side, y=phalanx_side, z=0}
 floor_start = pt.at{x=pt.min.x, y=pt.min.y, z=pt.heights.terrain}
 floor_end = pt.at{x=pt.max.x, y=pt.max.y, z=pt.heights.terrain}
 
-herd_start = pt.at{x=60, y=40, z=pt.heights.standing}
-herd_end = pt.at{x=70, y=50, z=pt.heights.standing}
+herd_start = pt.at{x=60, y=40, z=pt.heights.stand}
+herd_end = pt.at{x=70, y=50, z=pt.heights.stand}
 
 my_stage = stage.new()
 for p in pt.all_positions{min=floor_start, max=floor_end} do

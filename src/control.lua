@@ -43,12 +43,11 @@ function control.new_default(t)
         
     for k,v in pairs(valid_control_list) do
         default_table[k] = {}
-        local errmsg = "new default control table missing subgroup"
-        assert(type(t[k]) == "table", errmsg)
+        local sg = t[k]
+        assert(type(sg) == "table", "default ctrl table missing subgroup")
         for vk,vv in pairs(v) do
-            local errmsg = "new default control table missing control"
-            assert(t[k][vk], errmsg)
-            default_table[k][vk] = t[k][vk]
+            assert(sg[vk], "new default control table missing control")
+            default_table[k][vk] = sg[vk]
         end
     end
     default_ready = true
@@ -59,19 +58,16 @@ function control.validate_cur()
     for k,v in pairs(default_table) do
         assert(type(v) == "table", "missing control subgroup " .. k)
         for vk,vv in pairs(v) do
-            local errmsg = "missing control ["..k.."]["..vk.."]"
-            assert(control.cur[k][vk], errmsg)
-            local msg1 = "wrong type ("..type(control.cur[k][vk])..")"
-            local msg2 = "for control ["..k.."]["..vk.."]"
-            assert(type(control.cur[k][vk]) == "string", msg1 .. msg2)
+            local c = control.cur[k][vk]
+            assert(type(c) == "string", "bad ctrl ["..k.."]["..vk.."]")
         end
     end
 
     for k,v in pairs(control.cur) do
-        assert(default_table[k], "extra control subgroup " .. k)
+        local deftk = default_table[k]
+        assert(deftk, "extra control subgroup " .. k)
         for vk,vv in pairs(v) do
-            local errmsg = "extra control ["..k.."]["..vk.."]"
-            assert(default_table[k][vk], errmsg)
+            assert(deftk[vk], "extra control ["..k.."]["..vk.."]")
         end
     end
 end

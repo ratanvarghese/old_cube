@@ -5,7 +5,7 @@ stage = {}
 local protostage = {}
 local stage_mt = {
     __index = function(t, k)
-        return stage[k] or rawget(t, tostring(k))
+        return rawget(t, tostring(k))
     end,
     __newindex = function(t, k, v)
         if protostage[k] then

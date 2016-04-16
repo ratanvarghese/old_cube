@@ -65,6 +65,22 @@ local expected_6 = {
 local pt_7 = pt_1 / pt_3
 results["Division"] = pt_7 == pt.at(expected_6)
 
+p1 = pt.at{x=1, y=1, z=1}
+p2 = pt.at{x=2, y=2, z=2}
+p3 = pt.at{x=1, y=2, z=3}
+results["True basic less than"] = p1 < p2
+results["True basic less equal"] = p1 <= p2
+results["True basic greater than"] = p2 > p1
+results["True basic greater equal"] = p2 >= p1
+results["False basic less than"] = p1 < p2
+results["False basic less equal"] = p1 <= p2
+results["False basic greater than"] = p2 > p1
+results["False basic greater equal"] = p2 >= p1
+results["Complex less than"] = (not (p1 < p3)) and (not (p2 < p3))
+results["Complex less equal"] = (p1 <= p3) and (not (p2 <= p3))
+results["Complex greater than"] = (not (p3 > p1)) and (not (p3 > p2))
+results["Complex greater equal"] = (p3 >= p1) and (not (p3 >= p2))
+
 local my_map = {}
 results["All intended points are valid"] = true
 for ix=0,pt.max.x do

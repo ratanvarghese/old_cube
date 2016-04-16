@@ -1,5 +1,9 @@
 base = {}
 
+function base.join_list(src, dest)
+    return table.move(src, 1, #src, #dest + 1, dest)
+end
+
 function base.copy(src, targ, iter, deep)
     local targ = targ or {}
     local iter = iter or pairs
@@ -15,17 +19,12 @@ function base.copy(src, targ, iter, deep)
 end
 
 function base.remove_v(t, targ_v)
-    local targ_k = {}
+    local count = 0
     for k,v in pairs(t) do
         if v == targ_v then
-            targ_k[k] = true
+            t[k] = nil
+            count = count + 1
         end
-    end
-    
-    local count = 0
-    for k in pairs(targ_k) do
-        t[k] = nil
-        count = count + 1
     end
     return count
 end

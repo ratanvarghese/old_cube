@@ -2,6 +2,19 @@ require("_common")
 require("base")
 
 results = {}
+--JOIN_LIST
+dest = {"a", "b", "c"}
+src = {"d", "e", "f"}
+base.join_list(src, dest)
+expected = {"a", "b", "c", "d", "e", "f"}
+results["join_list: basic"] = true
+for i,v in ipairs(expected) do
+    if dest[i] ~= v then
+        results["join_list: basic"] = false
+        break
+    end
+end
+
 --COPY
 overwrite = "meaning"
 src = {

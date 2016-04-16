@@ -1,11 +1,8 @@
 require("pt")
 require("config")
-require("control")
-require("monst")
 require("terrain")
 require("stage")
 require("player")
-require("mind")
 require("time")
 
 err = config.readfile()
@@ -19,12 +16,11 @@ my_stage = stage.new()
 for p in pt.all_positions{max=pt.max*pt.at{x=1,y=1}} do
     local terrain_name = "floor"
     if rng.coin() then terrain_name = "wall" end
-    my_stage:add_ent(proto.clone_of(terrain_name), p)
+    stage.add_ent(my_stage, proto.clone_of(terrain_name), p)
 end
 
-pbody = player.init_body()
-my_stage:add_ent(pbody, pt.at{x=10, y=10, z=pt.heights.standing})
-mind.player(pbody)
+pbody = player.init()
+stage.add_ent(my_stage, pbody, pt.at{x=10, y=10, z=pt.heights.stand})
 userio.display(my_stage, pbody.pt)
 
 time.add(player.mind.co)
