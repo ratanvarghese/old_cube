@@ -2,3 +2,4 @@ plan/*
 *.swp
 *.o
 main
+save/*

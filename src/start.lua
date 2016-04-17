@@ -7,13 +7,15 @@ require("proto")
 require("mind")
 require("animal")
 require("time")
+require("replay")
+require("userio")
 
 err = config.readfile()
+name = userio.get_string("What's your name?")
 if err then
-    userio.message(err)
+    userio.message(err) --Not before name seek, so that error is seen!
 end
-
-rng.init(rng.metaseed)
+replay.init(name)
 
 my_stage = stage.new()
 for p in pt.all_positions{max=pt.max*pt.at{x=1,y=1}} do
@@ -28,10 +30,13 @@ fido = mind.suits_body(proto.clone_of("dog"))
 stage.add_ent(my_stage, fido, pt.at{x=12, y=10, z=pt.heights.sit})
 dogley = mind.suits_body(proto.clone_of("dog"))
 stage.add_ent(my_stage, dogley, pt.at{x=14, y=10, z=pt.heights.sit})
-userio.display(my_stage, pbody.pt)
 
 time.add(player.mind.co)
 time.add(fido.mind.co)
 time.add(dogley.mind.co)
-time.loop(function() return player.continuing end)
+time.loop(function()
+    userio.display(my_stage, pbody.pt)
+    return player.continuing
+end)
 --time.reverse(0)
+replay.save()

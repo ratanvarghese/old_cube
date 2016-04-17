@@ -26,7 +26,7 @@ results[test2] = not pcall(function() control.new_default{
         up = "<",
         down = ">"
     },
-    main = {
+    player = {
         quit = "q",
         help = "?"
     }
@@ -55,7 +55,7 @@ local default = {
         up = "<",
         down = ">"
     },
-    main = {
+    player = {
         quit = "q",
         help = "?"
     }
@@ -81,7 +81,7 @@ for k,v in pairs(default) do
             end
         end
     else
-        result[test4] = false
+        results[test4] = false
     end
 
     local revv = control.rev[k]
@@ -92,11 +92,11 @@ for k,v in pairs(default) do
             end
         end
     else
-        result[test5] = false
+        results[test5] = false
     end
 end
 
-control.cur.main = nil
+control.cur.player = nil
 test8 = "Invalid with removed subgroup"
 results[test8] = not pcall(function() control.validate_cur() end)
 
@@ -109,7 +109,7 @@ test10 = "Invalid with extra subgroup"
 results[test10] = not pcall(function() control.validate_cur() end)
 
 control.reset()
-control.cur.main.quit = nil
+control.cur.player.quit = nil
 test11 = "Invalid with single missing control"
 results[test11] = not pcall(function() control.validate_cur() end)
 

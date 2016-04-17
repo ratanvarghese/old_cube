@@ -13,7 +13,7 @@ local valid_control_list = {
         no = true
     },
     direction = base.copy(pt.direction),
-    main = {
+    player = {
         quit = true,
         help = true
     }

@@ -122,7 +122,7 @@ static int l_message(lua_State* L)
 {
     unready_error_check(L, "print message to");
     wmove(msgwin, 0, 0);
-    wclrtoeol(msgwin);
+    wclear(msgwin);
     mvwprintw(msgwin, 0, 0, luaL_checkstring(L, -1));
     wrefresh(msgwin);
     return 0;
@@ -133,7 +133,7 @@ static int l_get_char(lua_State* L)
     unready_error_check(L, "get char from");
     lua_pushfstring(L, "%c", wgetch(mapwin));
     wmove(msgwin, 0, 0);
-    wclrtoeol(msgwin);
+    wclear(msgwin);
     wrefresh(msgwin);
     return 1;
 }
@@ -153,7 +153,7 @@ static int l_get_string(lua_State* L)
     }
 
     wmove(msgwin, 0, 0);
-    wclrtoeol(msgwin);
+    wclear(msgwin);
     if(prompt && n_prompt)
     {
         mvwprintw(msgwin, 0, 0, prompt);
