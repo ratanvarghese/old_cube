@@ -4,13 +4,15 @@ require("stage")
 
 local function animal_logic(b, m)
     return function()
-        local is_up = rng.coin()
         while true do
             local vector = pt.direction.south
             local opp = pt.direction.north
-            if is_up then vector, opp = opp, vector end
-            is_up = not is_up
-            stage.mv_ent(b.stage, b, vector + b.pt)
+            local went_down = stage.mv_ent(b.stage, b, vector + b.pt)
+            if not went_down then
+                vector = pt.direction.north
+                opp = pt.direction.south
+                stage.mv_ent(b.stage, b, vector + b.pt)
+            end
             coroutine.yield(function()
                 stage.mv_ent(b.stage, b, opp + b.pt)
             end) 

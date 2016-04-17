@@ -7,7 +7,10 @@ require("replay")
 
 assert(userio, "userio.lua has nothing to override")
 local low_level = userio
-userio = {}
+userio = {
+    get_string = low_level.get_string,
+    get_char = low_level.get_char
+}
 
 -- CONTROL SCHEMES
 control.new_default{
@@ -41,17 +44,6 @@ control.new_default{
 function userio.message(m)
     if not REPLAY_MODE then
         low_level.message(m)
-    end
-end
-
-function userio.get_string(prompt, override)
-    local s = replay.old_act()
-    if s then
-        return s
-    else
-        s = low_level.get_string(prompt)
-        replay.record_act(s)
-        return s
     end
 end
 
