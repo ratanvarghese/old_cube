@@ -50,7 +50,7 @@ function replay.old_act()
 end
 
 function replay.record_act(act)
-    if not REPLAY_MODE and not control.cur.player[act] then
+    if not REPLAY_MODE and not control.valid_list.player[act] then
         table.insert(present_actions, act)
     end
 end

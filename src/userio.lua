@@ -75,14 +75,7 @@ function userio.input(context, just_one_char, prompt)
     return false
 end
 
-local prev_logic_center = pt.min
 function userio.display(entities, logical_center)
-    if logical_center then
-        prev_logic_center = logical_center
-    else
-        logical_center = prev_logic_center
-    end
-    
     if REPLAY_MODE and REPLAY_MODE ~= replay.modes.visual then
         return
     end
@@ -99,15 +92,19 @@ function userio.display(entities, logical_center)
         z = logical_center.z
     }
     local shift = logical_center - display_center
-    
+
+    local need_refresh = false    
     for p in pt.all_positions{min=display_min, max=display_max} do
         local logical_p = p + shift
         local targ = entities[logical_p]
         if targ and targ.symbol then
-            low_level.display_char(targ.symbol, p.x, p.y)
+            need_refresh = low_level.display_char(targ.symbol, p.x, p.y)
         elseif logical_p.z == 0 then --" " shouldn't overwrite symbols
-            low_level.display_char(" ", p.x, p.y)
+            need_refresh = low_level.display_char(" ", p.x, p.y)
         end
     end
-    low_level.display_refresh()
+
+    if need_refresh then
+        low_level.display_refresh()
+    end
 end

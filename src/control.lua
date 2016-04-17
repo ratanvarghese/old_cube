@@ -23,6 +23,7 @@ local default_ready = false
 local default_table = {}
 
 control = {}
+control.valid_list = valid_control_list
 control.cur = {}
 control.rev = {}
 control.curpairs = {}
