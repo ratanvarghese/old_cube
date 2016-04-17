@@ -19,7 +19,6 @@ end
 function proto.clone_of(s)
     local res_proto = all_proto[s]
     assert(res_proto, "Unrecognized prototype " .. tostring(s))
-
     local res = {}
     setmetatable(res, {__index = res_proto})
     local init = res_proto.clone_init

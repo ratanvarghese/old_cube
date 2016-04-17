@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <signal.h>
 
 //Cube of Time headers
 #include "l_userio.h"

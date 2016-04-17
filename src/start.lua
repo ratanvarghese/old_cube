@@ -1,7 +1,7 @@
 require("pt")
 require("config")
-require("terrain")
 require("stage")
+require("stgen")
 require("player")
 require("proto")
 require("mind")
@@ -17,12 +17,7 @@ if err then
 end
 replay.init(name)
 
-my_stage = stage.new()
-for p in pt.all_positions{max=pt.max*pt.at{x=1,y=1}} do
-    local terrain_name = "floor"
-    if rng.coin() then terrain_name = "wall" end
-    stage.add_ent(my_stage, proto.clone_of(terrain_name), p)
-end
+my_stage = stgen.g_cell(nil, nil, 4, 3)
 
 pbody = player.init()
 stage.add_ent(my_stage, pbody, pt.at{x=10, y=10, z=pt.heights.stand})
