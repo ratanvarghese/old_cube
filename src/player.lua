@@ -16,11 +16,9 @@ local function player_logic(b, m)
         elseif vector == pt.direction.down then
             userio.message("You crouch...")
         elseif stage.mv_ent(b.stage, b, vector + b.pt) then
-            userio.display(b.stage, b.pt)
             return function()
                 local rev_vector = pt.at{x=-1, y=-1, z=-1}
                 stage.mv_ent(b.stage, b, (rev_vector * vector) + b.pt)
-                userio.display(b.stage, b.pt)
             end 
         else
             userio.message("Bump!")

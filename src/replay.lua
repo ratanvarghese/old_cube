@@ -1,5 +1,6 @@
 require("control")
 
+local enter_present_hooks = {}
 local past_actions = {}
 local present_actions = {}
 local past_idx = 1
@@ -30,6 +31,11 @@ function replay.init(base_name)
     rng.init(rng.metaseed)
 end
 
+function replay.add_enter_present_hook(f)
+    assert(type(f) == "function", "Non-function enter present hook")
+    table.insert(enter_present_hooks, f)
+end
+
 function replay.old_act()
     local result = past_actions[past_idx]
     if result and REPLAY_MODE then
@@ -38,6 +44,7 @@ function replay.old_act()
     else
         past_actions = {}
         REPLAY_MODE = false
+        for i,v in ipairs(enter_present_hooks) do v() end
         return nil
     end
 end

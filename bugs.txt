@@ -1,2 +1,1 @@
-too much flashing
-display is one turn behind on reload
+Player loses a turn for quit/restore

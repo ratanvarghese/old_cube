@@ -11,10 +11,8 @@ local function animal_logic(b, m)
             if is_up then vector, opp = opp, vector end
             is_up = not is_up
             stage.mv_ent(b.stage, b, vector + b.pt)
-            userio.display(b.stage)
             coroutine.yield(function()
                 stage.mv_ent(b.stage, b, opp + b.pt)
-                userio.display(b.stage)
             end) 
         end
     end

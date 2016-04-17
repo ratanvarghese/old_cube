@@ -45,23 +45,19 @@ function userio.message(m)
 end
 
 function userio.get_string(prompt, override)
-    local s, justchanged = replay.old_act()
+    local s = replay.old_act()
     if s then
-        if justchanged then
-            userio.display(nil, nil, true)
-        end
         return s
     else
-        return low_level.get_string(prompt)
+        s = low_level.get_string(prompt)
+        replay.record_act(s)
+        return s
     end
 end
 
 function userio.input(context, just_one_char, prompt)
-    local s, justchanged = replay.old_act()
+    local s = replay.old_act()
     if s then
-        if justchanged then
-            userio.display(nil, nil, true)
-        end
         return s
     end
 
@@ -88,22 +84,14 @@ function userio.input(context, just_one_char, prompt)
 end
 
 local prev_logic_center = pt.min
-local prev_entities = {}
-function userio.display(entities, logical_center, override)
+function userio.display(entities, logical_center)
     if logical_center then
         prev_logic_center = logical_center
     else
         logical_center = prev_logic_center
     end
-
-    if entities then
-        prev_entities = entities
-    else
-        entities = prev_entities
-    end
-
-    local cond_r = (REPLAY_MODE and REPLAY_MODE ~= replay.modes.visual)
-    if not override and cond_r then
+    
+    if REPLAY_MODE and REPLAY_MODE ~= replay.modes.visual then
         return
     end
 
@@ -119,19 +107,15 @@ function userio.display(entities, logical_center, override)
         z = logical_center.z
     }
     local shift = logical_center - display_center
-
-    local need_refresh = false    
+    
     for p in pt.all_positions{min=display_min, max=display_max} do
         local logical_p = p + shift
         local targ = entities[logical_p]
         if targ and targ.symbol then
-            need_refresh = low_level.display_char(targ.symbol, p.x, p.y)
+            low_level.display_char(targ.symbol, p.x, p.y)
         elseif logical_p.z == 0 then --" " shouldn't overwrite symbols
-            need_refresh = low_level.display_char(" ", p.x, p.y)
+            low_level.display_char(" ", p.x, p.y)
         end
     end
-
-    if need_refresh then
-        low_level.display_refresh()
-    end
+    low_level.display_refresh()
 end
