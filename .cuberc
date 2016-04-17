@@ -1,5 +1,0 @@
-controls.main.x = "quit"
-controls.direction.w = pt.north
-controls.direction.a = pt.west
-controls.direction.s = pt.south
-controls.direction.d = pt.east
