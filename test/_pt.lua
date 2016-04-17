@@ -88,7 +88,7 @@ for ix=0,pt.max.x do
         for iz=0,pt.max.z do
             local p = pt.at{x=ix, y=iy, z=iz}
             if not pt.valid_position(p) then
-                tests["All intended points are valid"] = false
+                results["All intended points are valid"] = false
                 break
             end
             my_map[tostring(p)] = 1

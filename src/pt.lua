@@ -7,13 +7,13 @@ individually (dimension comparisons are combined via AND).
 --]]
 
 pt = {}
-pt.mt = {}
+local pt_mt = {}
 
 pt.heights={submerge=0,terrain=1,lie=2,sit=3,stand=4,polevault=5,fly=6}
 
 function pt.at(t)
     local p = {x = t.x or 0, y = t.y or 0, z = t.z or 0}
-    setmetatable(p, pt.mt)
+    setmetatable(p, pt_mt)
     return p
 end
 
@@ -21,22 +21,22 @@ pt.max = pt.at{x = 240 - 1, y = 60 - 1, z = pt.heights.fly}
 pt.min = pt.at{x = 0, y = 0, z = pt.heights.submerge}
 
 function pt.is_pt(t)
-    return getmetatable(t) == pt.mt
+    return getmetatable(t) == pt_mt
 end
 
 function pt.valid_position(p)
     return pt.is_pt(p) and p >= pt.min and p <= pt.max
 end    
 
-function pt.mt.__add(a,b) return pt.at{x=a.x+b.x,y=a.y+b.y,z=a.z+b.z} end
-function pt.mt.__sub(a,b) return pt.at{x=a.x-b.x,y=a.y-b.y,z=a.z-b.z} end
-function pt.mt.__mul(a,b) return pt.at{x=a.x*b.x,y=a.y*b.y,z=a.z*b.z} end
-function pt.mt.__div(a,b) return pt.at{x=a.x/b.x,y=a.y/b.y,z=a.z/b.z} end
-function pt.mt.__eq(a,b) return a.x==b.x and a.y==b.y and a.z==b.z end
-function pt.mt.__lt(a,b) return a.x<b.x and a.y<b.y and a.z<b.z end
-function pt.mt.__le(a,b) return a.x<=b.x and a.y<=b.y and a.z<=b.z end
+function pt_mt.__add(a,b) return pt.at{x=a.x+b.x,y=a.y+b.y,z=a.z+b.z} end
+function pt_mt.__sub(a,b) return pt.at{x=a.x-b.x,y=a.y-b.y,z=a.z-b.z} end
+function pt_mt.__mul(a,b) return pt.at{x=a.x*b.x,y=a.y*b.y,z=a.z*b.z} end
+function pt_mt.__div(a,b) return pt.at{x=a.x/b.x,y=a.y/b.y,z=a.z/b.z} end
+function pt_mt.__eq(a,b) return a.x==b.x and a.y==b.y and a.z==b.z end
+function pt_mt.__lt(a,b) return a.x<b.x and a.y<b.y and a.z<b.z end
+function pt_mt.__le(a,b) return a.x<=b.x and a.y<=b.y and a.z<=b.z end
 
-function pt.mt.__tostring(p)
+function pt_mt.__tostring(p)
     local format = "{[\"x\"]=%d, [\"y\"]=%d, [\"z\"]=%d}"
     return string.format(format, p.x, p.y, p.z)
 end
