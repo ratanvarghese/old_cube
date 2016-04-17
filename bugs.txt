@@ -1,0 +1,2 @@
+too much flashing
+display is one turn behind on reload

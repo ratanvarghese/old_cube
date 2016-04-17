@@ -88,8 +88,12 @@ static int l_display_char(lua_State* L)
         lua_error(L);
     }
 
-    mvwaddch(mapwin, y, x, *c);
-    return 0;
+    int need_display = mvwinch(mapwin, y, x) != *c;
+    if(need_display)
+        mvwaddch(mapwin, y, x, *c);
+
+    lua_pushboolean(L, need_display);
+    return 1;
 }
 
 static int l_display_refresh(lua_State* L)

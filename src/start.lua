@@ -26,17 +26,16 @@ end
 
 pbody = player.init()
 stage.add_ent(my_stage, pbody, pt.at{x=10, y=10, z=pt.heights.stand})
-fido = mind.suits_body(proto.clone_of("dog"))
+--[[fido = mind.suits_body(proto.clone_of("dog"))
 stage.add_ent(my_stage, fido, pt.at{x=12, y=10, z=pt.heights.sit})
 dogley = mind.suits_body(proto.clone_of("dog"))
 stage.add_ent(my_stage, dogley, pt.at{x=14, y=10, z=pt.heights.sit})
+--]]
+userio.display(my_stage, pbody.pt)
 
 time.add(player.mind.co)
-time.add(fido.mind.co)
-time.add(dogley.mind.co)
-time.loop(function()
-    userio.display(my_stage, pbody.pt)
-    return player.continuing
-end)
+--time.add(fido.mind.co)
+--time.add(dogley.mind.co)
+time.loop(function() return player.continuing end)
 --time.reverse(0)
 replay.save()
