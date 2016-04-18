@@ -6,66 +6,71 @@ require("terrain")
 
 local ter_pt_max = pt.at{x=pt.max.x, y=pt.max.y, z=pt.heights.terrain}
 local ter_pt_min = pt.at{x=pt.min.x, y=pt.min.y, z=pt.heights.terrain}
-stgen = {}
 
---Basic "stages"
-function stgen.g_mono(st, tername)
-    local st = st or stage.new()
-    local tername = tername or "floor"
+--Primitive generators
+local function pg_mono(num)
+    local num = num or 1
+    local st = stage.new()
     for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-        stage.add_ent(st, proto.clone_of(tername), p)
+        st[p] = num
     end
     return st
 end
 
-function stgen.g_rand(st, ter_list)
-    local st = st or stage.new()
-    local ter_list = ter_list or {"floor", "wall"}
-    local ter_count = #ter_list
+local function pg_rand(max)
+    local max = max or 2
+    local st = stage.new()
     for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-        local tername = ter_list[rng.dice(1, #ter_list)]
-        stage.add_ent(st, proto.clone_of(tername), p)
+        st[p] = rng.dice(1, max)
     end
     return st
 end
 
---Cellular automata
-function stgen.g_cell(st, ter_list, cycles, crit_neighbor)
-    local ter_list = ter_list or {"floor", "wall"}
-    st = stgen.g_rand(st, ter_list)
-    local cycles = cycles or 5
-    local crit_neighbor = crit_neighbor or 4
-    
-    local function neighbor_is_crit(ent, targ_name)
-        if pt.is_edge(ent.pt) then
-            return false
-        end
+local function pg_cell(max, cycles, crit_neighbor)
+    local max = max or 2
+    local cycles = cycles or 4
+    local crit_neighbor = crit_neighbor or 3
+    local old_st = pg_rand(max)
+    local new_st = stage.new()
+
+    local function new_cell(p, targ, alt)
         local count = 0
         local off_one = pt.at{x=1, y=1, z=0}
-        local min = ent.pt - off_one
-        local max = ent.pt + off_one
-        if min <= ter_pt_min then min = ter_pt_min end
-        if max >= ter_pt_max then max = ter_pt_max end
-        for p in pt.all_positions{min=min, max=max} do
-            assert(ent.stage[p], "missing " .. tostring(p))
-            if ent.stage[p].name == targ_name then
+        for p in pt.all_positions{min=p-off_one, max=p+off_one} do
+            if old_st[p] == targ then
                 count = count + 1
+                if count > crit_neighbor then
+                    return alt
+                end
             end
         end
-        return count > crit_neighbor
+        return targ
     end
 
-    local new_st = nil
     for i=0,cycles do
-        new_st = stage.new()
         for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-            local tername = ter_list[2]
-            if neighbor_is_crit(st[p], tername) then
-                tername = ter_list[1]
-            end
-            stage.add_ent(new_st, proto.clone_of(tername), p)
+            new_st[p] = new_cell(p, max, 1)
         end
-        st = new_st
+        old_st, new_st = new_st, old_st
     end
-    return new_st or st or stgen.g_rand(ter_list)
+
+    return old_st
+end
+
+--Primitive to public
+local function primitive_to_public(st, ter_list)
+    for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
+        local n = st[p]
+        st[p] = nil
+        stage.add_ent(st, proto.clone_of(ter_list[n]), p)
+    end
+    return st
+end
+
+--Public
+stgen = {}
+function stgen.g_cell(ter_list, cycles, crit_neighbor)
+    local ter_list = ter_list or {"floor", "wall"}
+    local st = pg_cell(#ter_list, cycles, crit_neighbor)
+    return primitive_to_public(st, ter_list)
 end

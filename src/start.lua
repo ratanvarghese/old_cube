@@ -17,7 +17,7 @@ if err then
 end
 replay.init(name)
 
-my_stage = stgen.g_cell(nil, nil, 4, 3)
+my_stage = stgen.g_cell(nil, 4, 3)
 
 pbody = player.init()
 stage.add_ent(my_stage, pbody, pt.at{x=10, y=10, z=pt.heights.stand})

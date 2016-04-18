@@ -51,6 +51,12 @@ function pt_mt.__tostring(p)
     return string.format(format, p.x, p.y, p.z)
 end
 
+function pt.hash(p)
+    --Only needed for valid positions, not vectors.
+    --x coordinate fits in 8 bit int, y in 6 bit, z in 4 bit
+    return ( p.z ) | ( p.y << 4 ) | ( p.x << 10 )
+end
+
 local function iter(range, p)
     if not p then
         return nil
