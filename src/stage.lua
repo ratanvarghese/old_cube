@@ -5,13 +5,13 @@ stage = {}
 local protostage = {}
 local stage_mt = {
     __index = function(t, k)
-        return rawget(t, pt.hash(k))--pt.hash(k))
+        return rawget(t, pt.hash(k))
     end,
     __newindex = function(t, k, v)
         if protostage[k] then
             rawset(t, k, v)
         elseif pt.valid_position(k) then
-            rawset(t, pt.hash(k), v)--pt.hash(k), v)
+            rawset(t, pt.hash(k), v)
         else
             error("Attempt to add invalid key to stage: " .. tostring(k))
         end
