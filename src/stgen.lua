@@ -69,13 +69,13 @@ end
 
 --Public
 stgen = {}
-function stgen.g_mono()
+function stgen.g_mono(ter_list)
     local ter_list = ter_list or {"floor", "wall"}
     local st = pg_mono(#ter_list)
     return primitive_to_public(st, ter_list)
 end
 
-function stgen.g_rand()
+function stgen.g_rand(ter_list)
     local ter_list = ter_list or {"floor", "wall"}
     local st = pg_rand(#ter_list)
     return primitive_to_public(st, ter_list)
