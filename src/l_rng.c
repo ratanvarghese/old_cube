@@ -36,7 +36,7 @@ void init_rng(uint32_t metaseed)
     ready = 1;
 }
 
-static uint32_t CMWC4096()
+uint32_t CMWC4096()
 {
     //Algorithm by George Marsaglia
     uint64_t multiplier = 18782;
@@ -114,5 +114,5 @@ int luaopen_rng(lua_State* L)
     lua_setfield(L, 1, "metaseed");
     lua_pop(L, 1);
 
-    return 1;
+    return 0;
 }

@@ -28,16 +28,6 @@ function pt.valid_position(p)
     return pt.is_pt(p) and p >= pt.min and p <= pt.max
 end    
 
-function pt.is_edge(p)
-    if p.x == pt.min.x or p.y == pt.min.y then
-        return true
-    elseif p.x == pt.max.x or p.y == pt.max.y then
-        return true
-    else
-        return false
-    end
-end
-
 function pt_mt.__add(a,b) return pt.at{x=a.x+b.x,y=a.y+b.y,z=a.z+b.z} end
 function pt_mt.__sub(a,b) return pt.at{x=a.x-b.x,y=a.y-b.y,z=a.z-b.z} end
 function pt_mt.__mul(a,b) return pt.at{x=a.x*b.x,y=a.y*b.y,z=a.z*b.z} end

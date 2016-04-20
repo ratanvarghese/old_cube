@@ -205,5 +205,5 @@ int luaopen_userio(lua_State* L)
 {
     luaL_newlib(L, userio_lib);
     lua_setglobal(L, lbname);
-    return 1;
+    return 0;
 }
