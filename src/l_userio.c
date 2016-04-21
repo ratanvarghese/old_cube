@@ -75,7 +75,7 @@ void userio_override_lib(lua_State* L)
 }
 
 //Lua functions
-void unready_error_check(lua_State* L, char* msg)
+void unready_interface_check(lua_State* L, char* msg)
 {
     if(!ready)
     {
@@ -86,7 +86,7 @@ void unready_error_check(lua_State* L, char* msg)
 
 static int l_display_char(lua_State* L)
 {
-    unready_error_check(L, "display char to");
+    unready_interface_check(L, "display char to");
     const char* c = luaL_checkstring(L, -3);
     int x = (int) luaL_checkinteger(L, -2);
     int y = (int) luaL_checkinteger(L, -1);
@@ -107,14 +107,14 @@ static int l_display_char(lua_State* L)
 
 static int l_display_refresh(lua_State* L)
 {
-    unready_error_check(L, "refresh display of");
+    unready_interface_check(L, "refresh display of");
     wrefresh(mapwin);
     return 0;
 }
 
 static int l_display_clear(lua_State* L)
 {
-    unready_error_check(L, "clear display of");
+    unready_interface_check(L, "clear display of");
     wclear(mapwin);
     return 0;
 }
@@ -133,7 +133,7 @@ static int l_get_max_y(lua_State* L)
 
 static int l_message(lua_State* L)
 {
-    unready_error_check(L, "print message to");
+    unready_interface_check(L, "print message to");
     wmove(msgwin, 1, 0);
     wclrtoeol(msgwin);
     wmove(msgwin, 0, 0);
@@ -145,7 +145,7 @@ static int l_message(lua_State* L)
 
 static int l_get_char(lua_State* L)
 {
-    unready_error_check(L, "get char from");
+    unready_interface_check(L, "get char from");
     //Want to avoid filling input buffer when user holds down a key.
     //Also want to avoid hogging the CPU.
     nodelay(mapwin, true);
@@ -170,7 +170,7 @@ static int l_get_char(lua_State* L)
 
 static int l_get_string(lua_State* L)
 {
-    unready_error_check(L, "get string from");
+    unready_interface_check(L, "get string from");
     char input_buf[USERIO_MAX_X];
     size_t n_prompt = 0, pre_input_gap = 0;
     const size_t prompt_limit = 3*(USERIO_MAX_X/4);

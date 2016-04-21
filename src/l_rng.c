@@ -66,24 +66,33 @@ static int l_init(lua_State* L)
     return 0;
 }
 
-static int l_coin(lua_State* L)
+void unready_rng_check(lua_State* L, char* msg)
 {
     if(!ready)
     {
-        lua_pushstring(L, "Attempt to flip coin with unseeded RNG.");
+        lua_pushfstring(L, "Attempt to %s with unseeded RNG.\n", msg);
         lua_error(L);
     }
+}
+
+static int l_coin(lua_State* L)
+{
+    unready_rng_check(L, "flip coin");
     lua_pushboolean(L, (int)(CMWC4096()%2));
+    return 1;
+}
+
+static int l_wcoin(lua_State* L)
+{
+    unready_rng_check(L, "flip weighted coin");
+    int percent_heads = (int)luaL_checkinteger(L, 1);
+    lua_pushboolean(L, (int)((CMWC4096()%100) < percent_heads));
     return 1;
 }
 
 static int l_dice(lua_State* L)
 {
-    if(!ready)
-    {
-        lua_pushstring(L, "Attempt to roll dice with unseeded RNG.");
-        lua_error(L);
-    }
+    unready_rng_check(L, "roll dice");
     int throws = (int) luaL_checkinteger(L, 1);
     int sides = (int) luaL_checkinteger(L, 2);
 
@@ -97,6 +106,7 @@ static int l_dice(lua_State* L)
 
 static const struct luaL_Reg rng_lib [] = {
     {"coin", l_coin},
+    {"wcoin", l_wcoin},
     {"dice", l_dice},
     {"init", l_init},
     {NULL, NULL} //Sentinel

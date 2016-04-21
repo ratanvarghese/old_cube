@@ -19,7 +19,7 @@ replay.init(name)
 
 local ter_pt_max = pt.at{x=pt.max.x, y=pt.max.y, z=pt.heights.terrain}
 local ter_pt_min = pt.at{x=pt.min.x, y=pt.min.y, z=pt.heights.terrain}
-my_stage = stgen.g_cell()
+my_stage = stgen.g_walk()
 player_p = pt.at{x=10, y=10, z=pt.heights.stand}
 for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
     if my_stage[p].symbol == "." then

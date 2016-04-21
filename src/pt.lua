@@ -47,7 +47,7 @@ function pt.hash(p)
     return ( p.z ) | ( p.y << 4 ) | ( p.x << 10 )
 end
 
-local function iter(range, p)
+local function all_iter(range, p)
     if not p then
         return nil
     elseif p.x < range.max.x then
@@ -69,7 +69,7 @@ function pt.all_positions(range)
     assert(range.max >= range.min, "range max exceeds min")
 
     local initial = pt.at{x=range.min.x-1, y=range.min.y, z=range.min.z}
-    return iter, range, initial
+    return all_iter, range, initial
 end
 
 pt.direction = {

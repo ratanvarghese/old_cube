@@ -1,122 +1,94 @@
-require("base")
 require("pt")
 require("stage")
 require("proto")
 require("terrain")
 
-local ter_pt_max = pt.at{x=pt.max.x, y=pt.max.y, z=pt.heights.terrain}
-local ter_pt_min = pt.at{x=pt.min.x, y=pt.min.y, z=pt.heights.terrain}
+local ter_min = pt.at{x=pt.min.x, y=pt.min.y, z=pt.heights.terrain}
+local ter_max = pt.at{x=pt.max.x, y=pt.max.y, z=pt.heights.terrain}
 
---Primitive generators
-local function pg_mono(num)
-    local num = num or 1
-    local st = stage.new()
-    for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-        st[p] = num
+--Primitive functions: true == obstacle, false == walkable
+local function pg_rand(percent_obstacle, st)
+    local percent_obstacle = percent_obstacle or 50
+    for p in pt.all_positions{min=ter_min, max=ter_max} do
+        st[p] = rng.wcoin(percent_obstacle)
     end
     return st
 end
 
-local function pg_rand(max)
-    local max = max or 2
-    local st = stage.new()
-    for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-        st[p] = rng.dice(1, max)
+local function pg_mono(val, st)
+    for p in pt.all_positions{min=ter_min, max=ter_max} do
+        st[p] = val
     end
     return st
 end
 
-local function pg_cell(max, cycles, crit_neighbor)
-    local max = max or 2
-    local cycles = cycles or 4
-    local crit_neighbor = crit_neighbor or 3
-    local old_st = pg_rand(max)
+local function pg_cell(st)
+    local old_st = pg_rand(50, st)
     local new_st = stage.new()
+    local cycles = 7
 
-    local function new_cell(p, targ, alt)
-        local count = 0
-        for x=p.x-1,p.x+1 do
-            for y=p.y-1,p.y+1 do
-                if old_st[pt.at{x=x, y=y, z=ter_pt_max.z}] == targ then
-                    count = count + 1
-                    if count > crit_neighbor then
-                        return alt
-                    end
-                end
+    local function new_cell(p, c)
+        local obs_count1 = 0
+        local obs_count2 = 0
+        local off_2 = pt.at{x=2, y=2, z=0}
+        local abs = math.abs
+        for p2 in pt.all_positions{max=p+off_2, min=p-off_2} do
+            if old_st[p2] then
+                obs_count2 = obs_count2 + 1
+                if abs(p2.x-p.x) <= 1 and abs(p2.y-p.y) <= 1 then
+                    obs_count1 = obs_count1 + 1
+                end 
             end
         end
-        return targ
+
+        if c < 4 then
+            return obs_count1 >= 5 or obs_count2 <= 2
+        else
+            return obs_count1 >= 5
+        end
     end
 
-    for i=0,cycles do
-        for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-            new_st[p] = new_cell(p, max, 1)
+    for c=1,cycles do
+        for p in pt.all_positions{min=ter_min, max=ter_max} do
+            new_st[p] = new_cell(p, c)
         end
         old_st, new_st = new_st, old_st
     end
-
     return old_st
 end
 
-local function pg_cellex(max)
-    local old_st = pg_rand(max)
-    local new_st = stage.new()
-    for i=0,cycles do
-        for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-        end
-    end
-end
-
-local function pg_walk(max, steps, factor)
-    local max = max or 2
-    local steps = steps or 3600
-    local factor = factor or 1
-    local st = pg_mono(max)
-    local start_x = rng.dice(factor, math.floor(ter_pt_max.x/factor))
-    local start_y = rng.dice(factor, math.floor(ter_pt_max.y/factor))
-    local p = pt.at{x=start_x, y=start_y, z=ter_pt_max.z}
-    for s=0,steps do
-        st[p] = 1
-        while st[p] ~= max or not pt.valid_position(p) do
-            --A little jumping is better than the alternatives...
-            p = p + pt.at{x=rng.dice(1,3)-2, y=rng.dice(1,3)-2}
+local function pg_walk(st)
+    pg_mono(true, st)
+    local steps = 3600
+    local startx = rng.dice(1, pt.max.x)
+    local starty = rng.dice(1, pt.max.y)
+    local p = pt.at{x=startx, y=starty, z=ter_max.z}
+    for s=1,steps do
+        st[p] = false
+        while not st[p] or not pt.valid_position(p) do
+            p = p + pt.at{x=rng.dice(1, 3)-2, y=rng.dice(1, 3)-2, z=0}
         end
     end
     return st
 end
 
---Primitive to public
-local function primitive_to_public(st, ter_list)
-    for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
-        local n = st[p]
-        st[p] = nil
-        stage.add_ent(st, proto.clone_of(ter_list[n]), p)
+--topublic
+local function topublic(st)
+    for p in pt.all_positions{min=ter_min, max=ter_max} do
+        local tername = "floor"
+        if st[p] then tername = "wall" end
+        st[p] = proto.clone_of(tername)
     end
     return st
 end
 
---Public
+--public
 stgen = {}
-function stgen.g_mono(ter_list)
-    local ter_list = ter_list or {"floor", "wall"}
-    local st = pg_mono(#ter_list)
-    return primitive_to_public(st, ter_list)
+
+function stgen.g_cell()
+    return topublic(pg_cell(stage.new()))
 end
 
-function stgen.g_rand(ter_list)
-    local ter_list = ter_list or {"floor", "wall"}
-    local st = pg_rand(#ter_list)
-    return primitive_to_public(st, ter_list)
-end
-
-function stgen.g_cell(ter_list, cycles, crit_neighbor)
-    local ter_list = ter_list or {"floor", "wall"}
-    local st = pg_cell(#ter_list, cycles, crit_neighbor)
-    return primitive_to_public(st, ter_list)
-end
-
-function stgen.g_walk(ter_list, steps, factor)
-    local ter_list = ter_list or {"floor", "wall"}
-    local st = pg_walk(#ter_list, steps, factor)
-    return primitive_to_public(st, ter_list)
+function stgen.g_walk()
+    return topublic(pg_walk(stage.new()))
 end
