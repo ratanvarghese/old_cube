@@ -35,12 +35,13 @@ local function pg_cell(max, cycles, crit_neighbor)
 
     local function new_cell(p, targ, alt)
         local count = 0
-        local off_one = pt.at{x=1, y=1, z=0}
-        for p in pt.all_positions{min=p-off_one, max=p+off_one} do
-            if old_st[p] == targ then
-                count = count + 1
-                if count > crit_neighbor then
-                    return alt
+        for x=p.x-1,p.x+1 do
+            for y=p.y-1,p.y+1 do
+                if old_st[pt.at{x=x, y=y, z=ter_pt_max.z}] == targ then
+                    count = count + 1
+                    if count > crit_neighbor then
+                        return alt
+                    end
                 end
             end
         end
@@ -55,6 +56,15 @@ local function pg_cell(max, cycles, crit_neighbor)
     end
 
     return old_st
+end
+
+local function pg_cellex(max)
+    local old_st = pg_rand(max)
+    local new_st = stage.new()
+    for i=0,cycles do
+        for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
+        end
+    end
 end
 
 local function pg_walk(max, steps, factor)
