@@ -17,10 +17,18 @@ if err then
 end
 replay.init(name)
 
-my_stage = stgen.g_cell(nil, 4, 3)
-
+local ter_pt_max = pt.at{x=pt.max.x, y=pt.max.y, z=pt.heights.terrain}
+local ter_pt_min = pt.at{x=pt.min.x, y=pt.min.y, z=pt.heights.terrain}
+my_stage = stgen.g_walk()
+player_p = pt.at{x=10, y=10, z=pt.heights.stand}
+for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
+    if my_stage[p].symbol == "." then
+        player_p = pt.at{x=p.x, y=p.y, z=pt.heights.stand}
+        break
+    end
+end
 pbody = player.init()
-stage.add_ent(my_stage, pbody, pt.at{x=10, y=10, z=pt.heights.stand})
+stage.add_ent(my_stage, pbody, player_p)
 fido = mind.suits_body(proto.clone_of("dog"))
 stage.add_ent(my_stage, fido, pt.at{x=12, y=10, z=pt.heights.sit})
 dogley = mind.suits_body(proto.clone_of("dog"))

@@ -57,6 +57,24 @@ local function pg_cell(max, cycles, crit_neighbor)
     return old_st
 end
 
+local function pg_walk(max, steps, factor)
+    local max = max or 2
+    local steps = steps or 3600
+    local factor = factor or 1
+    local st = pg_mono(max)
+    local start_x = rng.dice(factor, math.floor(ter_pt_max.x/factor))
+    local start_y = rng.dice(factor, math.floor(ter_pt_max.y/factor))
+    local p = pt.at{x=start_x, y=start_y, z=ter_pt_max.z}
+    for s=0,steps do
+        st[p] = 1
+        while st[p] ~= max or not pt.valid_position(p) do
+            --A little jumping is better than the alternatives...
+            p = p + pt.at{x=rng.dice(1,3)-2, y=rng.dice(1,3)-2}
+        end
+    end
+    return st
+end
+
 --Primitive to public
 local function primitive_to_public(st, ter_list)
     for p in pt.all_positions{min=ter_pt_min, max=ter_pt_max} do
@@ -84,5 +102,11 @@ end
 function stgen.g_cell(ter_list, cycles, crit_neighbor)
     local ter_list = ter_list or {"floor", "wall"}
     local st = pg_cell(#ter_list, cycles, crit_neighbor)
+    return primitive_to_public(st, ter_list)
+end
+
+function stgen.g_walk(ter_list, steps, factor)
+    local ter_list = ter_list or {"floor", "wall"}
+    local st = pg_walk(#ter_list, steps, factor)
     return primitive_to_public(st, ter_list)
 end
