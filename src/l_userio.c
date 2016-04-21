@@ -1,3 +1,9 @@
+//C Standard Library
+#include <stdbool.h>
+
+//POSIX
+#include <unistd.h>
+
 //Ncurses Library
 #include <ncurses.h>
 
@@ -8,6 +14,8 @@
 
 //Cube of Time Headers
 #include "l_userio.h"
+
+extern int usleep(__useconds_t);
 
 //Static globals
 static WINDOW *msgwin, *mapwin, *statwin;
@@ -32,6 +40,7 @@ int userio_init()
     mapwin = newwin(USERIO_MAX_Y, USERIO_MAX_X, 2, 0);
     statwin = newwin(2, USERIO_MAX_X, USERIO_MAX_Y+2, 0);
     
+    nodelay(mapwin, false);
     ready = 1;
     return 0;
 }
@@ -137,7 +146,20 @@ static int l_message(lua_State* L)
 static int l_get_char(lua_State* L)
 {
     unready_error_check(L, "get char from");
-    lua_pushfstring(L, "%c", wgetch(mapwin));
+    //Want to avoid filling input buffer when user holds down a key.
+    //Also want to avoid hogging the CPU.
+    nodelay(mapwin, true);
+    char c = ERR;
+    while(c == ERR)
+    {
+        c = wgetch(mapwin);
+        usleep(5000);
+    }
+    lua_pushfstring(L, "%c", c);
+    while(wgetch(mapwin) != ERR)
+        usleep(5000);
+    nodelay(mapwin, false);
+
     wmove(msgwin, 1, 0);
     wclrtoeol(msgwin);
     wmove(msgwin, 0, 0);

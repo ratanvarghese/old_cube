@@ -16,4 +16,4 @@ check:
 	sh $(TESTDIR)$(TESTFILE)
 
 clean:
-	rm $(OBJ) main
+	rm $(OBJ) main save/*
