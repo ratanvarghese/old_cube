@@ -23,7 +23,7 @@ local function pg_mono(val, st)
 end
 
 local function pg_cell(st)
-    local old_st = pg_rand(50, st)
+    local old_st = pg_rand(45, st)
     local new_st = stage.new()
     local cycles = 7
 
@@ -71,6 +71,7 @@ local function pg_walk(st)
     end
     return st
 end
+
 
 --topublic
 local function topublic(st)
