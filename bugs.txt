@@ -1,0 +1,2 @@
+Error message whenever starting without $HOME/.cuberc 
+Test fails: error when adding invalid key
