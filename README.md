@@ -14,7 +14,7 @@ There are some interesting parts of the code which I might re-use in a future ro
 Additionally there are some well known algorithms used in the code:
 
  + Instead of relying on the system pseudorandom number generator, this project uses a [multiply-with-carry](https://en.wikipedia.org/wiki/Multiply-with-carry) based generator. The implementation does not use random seeds though: the seeds are themselves pseudorandom so the end result might not be as random as possible. See [l_rng.c](src/l_rng.c).
- + Bresenham's line algorithm and flood fills are used in [geomet.lua](src/geomet.lua).
+ + Bresenham's line algorithm and flood fills is used in [geomet.lua](src/geomet.lua).
  + Cellular-automata-inspired level generation, where the terrain of a tile is determined by the terrain of surrounding tiles. See [stgen.lua](src/stgen.lua).
 
 ## Dependencies
